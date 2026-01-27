@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Between pages...</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+      background-color: #faf8f5;
+      color: #3d3428;
+      min-height: 100vh;
+      letter-spacing: 0.5px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    /* Views */
+    .view {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .view.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      padding: 16px 20px;
+      background: #faf8f5;
+      border-bottom: 1px solid #e8e4df;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: lowercase;
+      color: #5c4d3d;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px;
+      color: #5c4d3d;
+    }
+
+    /* Sticky Header (Home) - Soft Reading Aesthetic */
+    .sticky-header {
+      padding: 24px 20px 20px;
+      background: linear-gradient(180deg, #faf8f5 0%, #fff 100%);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      border-bottom: 1px solid #e8e4df;
+      text-align: center;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      position: relative;
+    }
+
+    .logo-icon::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 26px;
+      border: 2px solid #8b7355;
+      border-radius: 0 4px 4px 0;
+      left: 4px;
+      top: 3px;
+    }
+
+    .logo-icon::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 22px;
+      border: 2px solid #a89078;
+      border-radius: 0 3px 3px 0;
+      left: 0;
+      top: 5px;
+      background: #faf8f5;
+    }
+
+    .sticky-header h1 {
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: 4px;
+      color: #5c4d3d;
+      text-transform: lowercase;
+    }
+
+    .tagline {
+      font-size: 11px;
+      color: #a89078;
+      letter-spacing: 2px;
+      font-style: italic;
+      margin-top: 6px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .empty-state h2 {
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      color: #5c4d3d;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+      color: #a89078;
+      letter-spacing: 1px;
+    }
+
+    /* Timeline / Year Sections */
+    .timeline {
+      flex: 1;
+      padding: 0 20px 100px;
+      overflow-y: auto;
+      background: #faf8f5;
+    }
+
+    .year-header {
+      display: flex;
+      align-items: center;
+      margin: 28px 0 20px;
+    }
+
+    .year-line {
+      flex: 1;
+      height: 1px;
+      background: #d4cec4;
+    }
+
+    .year-text {
+      font-size: 16px;
+      letter-spacing: 4px;
+      margin: 0 16px;
+      color: #8b7355;
+    }
+
+    /* Book Grid */
+    .year-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: space-between;
+    }
+
+    .book-card {
+      width: calc(50% - 8px);
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: transform 0.2s;
+    }
+
+    .book-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .card-inner {
+      position: relative;
+      box-shadow: 0 2px 8px rgba(92, 77, 61, 0.1);
+    }
+
+    .card-cover {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      background: #e8e4df;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-text-box {
+      position: absolute;
+      padding: 5px;
+      max-width: 90%;
+      font-size: 8px;
+      line-height: 10px;
+    }
+
+    .card-title {
+      margin-top: 10px;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      color: #3d3428;
+    }
+
+    .card-author {
+      font-size: 10px;
+      color: #8b7355;
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* FAB Button */
+    .fab {
+      position: fixed;
+      bottom: 36px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      background: #5c4d3d;
+      color: #faf8f5;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      z-index: 50;
+      border-radius: 50%;
+      box-shadow: 0 4px 16px rgba(92, 77, 61, 0.3);
+      transition: all 0.2s;
+    }
+
+    .fab:hover {
+      background: #4a3e31;
+      transform: scale(1.05);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e8e4df;
+      background: #faf8f5;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 13px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      color: #a89078;
+      text-transform: lowercase;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: #5c4d3d;
+      color: #faf8f5;
+    }
+
+    .tab:not(.active):hover {
+      color: #5c4d3d;
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Search */
+    .search-row {
+      display: flex;
+      padding: 20px;
+      gap: 12px;
+      background: #faf8f5;
+    }
+
+    .search-input {
+      flex: 1;
+      font-family: inherit;
+      background: #fff;
+      padding: 14px 16px;
+      font-size: 14px;
+      border: 1px solid #e8e4df;
+      outline: none;
+      color: #5c4d3d;
+    }
+
+    .search-input::placeholder {
+      color: #c4b8a8;
+    }
+
+    .search-input:focus {
+      border-color: #a89078;
+    }
+
+    .search-btn {
+      background: #5c4d3d;
+      color: #faf8f5;
+      border: none;
+      padding: 14px 20px;
+      font-family: inherit;
+      font-size: 14px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: lowercase;
+    }
+
+    .search-btn:hover {
+      background: #4a3e31;
+    }
+
+    /* Search Results */
+    .search-results {
+      flex: 1;
+      padding: 0 20px 20px;
+      overflow-y: auto;
+      background: #faf8f5;
+    }
+
+    .result-item {
+      display: flex;
+      border-bottom: 1px solid #e8e4df;
+      padding: 14px 0;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .result-item:hover {
+      background: #f5f0ea;
+    }
+
+    .result-cover {
+      width: 50px;
+      height: 75px;
+      background: #e8e4df;
+      object-fit: cover;
+    }
+
+    .result-info {
+      flex: 1;
+      margin-left: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .result-title {
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #3d3428;
+    }
+
+    .result-author {
+      font-size: 11px;
+      color: #8b7355;
+    }
+
+    .search-message {
+      text-align: center;
+      padding: 40px 20px;
+      color: #a89078;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    /* Form */
+    .form {
+      padding: 24px;
+      flex: 1;
+      overflow-y: auto;
+      background: #faf8f5;
+    }
+
+    .form-input {
+      width: 100%;
+      font-family: inherit;
+      background: #fff;
+      padding: 14px 16px;
+      font-size: 14px;
+      border: 1px solid #e8e4df;
+      outline: none;
+      margin-bottom: 16px;
+      color: #5c4d3d;
+    }
+
+    .form-input::placeholder {
+      color: #c4b8a8;
+    }
+
+    .form-input:focus {
+      border-color: #a89078;
+    }
+
+    /* Image Upload */
+    .cover-picker {
+      display: flex;
+      justify-content: center;
+      margin: 24px 0;
+    }
+
+    .cover-preview {
+      width: 130px;
+      height: 195px;
+      object-fit: cover;
+    }
+
+    .cover-placeholder {
+      width: 130px;
+      height: 195px;
+      background: #fff;
+      border: 1px dashed #c4b8a8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: #a89078;
+      font-size: 12px;
+      line-height: 18px;
+      cursor: pointer;
+    }
+
+    .cover-placeholder:hover {
+      border-color: #8b7355;
+      color: #8b7355;
+    }
+
+    #cover-input {
+      display: none;
+    }
+
+    /* Submit Button */
+    .save-btn {
+      width: 100%;
+      background: #5c4d3d;
+      color: #faf8f5;
+      border: none;
+      padding: 16px;
+      font-family: inherit;
+      font-size: 14px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      margin-top: 20px;
+      text-transform: lowercase;
+    }
+
+    .save-btn:hover {
+      background: #4a3e31;
+    }
+
+    /* Story-Style Book Detail */
+    .story-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: #000;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+    }
+
+    .story-cover-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .story-cover {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      transform: translate(-50%, -50%);
+      transform-origin: center center;
+      touch-action: none;
+    }
+
+    /* Top bar */
+    .story-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+    }
+
+    .story-close-btn {
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      border: none;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+
+    .story-done-btn {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      text-transform: lowercase;
+      border-radius: 4px;
+    }
+
+    .story-done-btn:hover {
+      background: #f0f0f0;
+    }
+
+    /* Editable Text Box - Instagram style */
+    .text-box {
+      position: absolute;
+      padding: 10px 14px;
+      min-width: 40px;
+      max-width: 85%;
+      background: #ffffff;
+      color: #1a1a1a;
+      z-index: 15;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .text-box.editing {
+      cursor: text;
+      user-select: text;
+    }
+
+    .text-box.draggable {
+      cursor: move;
+    }
+
+    .text-box-input {
+      font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+      font-size: 16px;
+      line-height: 1.4;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: inherit;
+      width: 100%;
+      min-width: 100px;
+      resize: none;
+      overflow: hidden;
+    }
+
+    .text-box-display {
+      font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+      font-size: 16px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    /* Tap hint */
+    .tap-hint {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    /* About This Book Page */
+    .about-book-view {
+      background: #faf8f5;
+      min-height: 100vh;
+    }
+
+    .about-header {
+      padding: 16px 20px;
+      background: #faf8f5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e8e4df;
+    }
+
+    .about-back-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 4px 8px;
+      color: #5c4d3d;
+    }
+
+    .about-header-title {
+      font-size: 14px;
+      letter-spacing: 2px;
+      color: #5c4d3d;
+      text-transform: lowercase;
+    }
+
+    .about-edit-btn {
+      background: none;
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 8px 12px;
+      color: #8b7355;
+      letter-spacing: 1px;
+      text-transform: lowercase;
+    }
+
+    .about-content {
+      padding: 24px 20px;
+    }
+
+    .about-cover-section {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .about-cover-wrapper {
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    .about-cover {
+      width: 160px;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .about-details {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .about-title {
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      color: #3d3428;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .about-author {
+      font-size: 14px;
+      color: #8b7355;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    .about-date-section {
+      background: #fff;
+      border: 1px solid #e8e4df;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+
+    .about-date-label {
+      font-size: 11px;
+      color: #a89078;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .about-date-value {
+      font-size: 16px;
+      color: #5c4d3d;
+      letter-spacing: 1px;
+    }
+
+    .about-summary-section {
+      background: #fff;
+      border: 1px solid #e8e4df;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+    }
+
+    .about-summary-label {
+      font-size: 11px;
+      color: #a89078;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .about-summary-text {
+      font-size: 13px;
+      color: #5c4d3d;
+      line-height: 1.7;
+    }
+
+    .about-summary-empty {
+      font-size: 13px;
+      color: #c4b8a8;
+      font-style: italic;
+    }
+
+    .about-actions {
+      display: flex;
+      gap: 12px;
+      padding: 0 20px 40px;
+    }
+
+    .about-action-btn {
+      flex: 1;
+      padding: 14px;
+      font-family: inherit;
+      font-size: 14px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      text-transform: lowercase;
+      border: none;
+    }
+
+    .about-action-btn.edit {
+      background: #5c4d3d;
+      color: #fff;
+    }
+
+    .about-action-btn.edit:hover {
+      background: #4a3e31;
+    }
+
+    .about-action-btn.delete {
+      background: #fff;
+      color: #c9a088;
+      border: 1px solid #e8e4df;
+    }
+
+    .about-action-btn.delete:hover {
+      background: #faf8f5;
+      color: #b8847a;
+    }
+
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(61, 52, 40, 0.6);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #faf8f5;
+      padding: 28px;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+      border-radius: 4px;
+    }
+
+    .modal h3 {
+      font-size: 16px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      text-transform: lowercase;
+      color: #5c4d3d;
+    }
+
+    .modal p {
+      color: #8b7355;
+      margin-bottom: 24px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: lowercase;
+    }
+
+    .modal-btn.cancel {
+      background: #fff;
+      border: 1px solid #e8e4df;
+      color: #5c4d3d;
+    }
+
+    .modal-btn.confirm {
+      background: #c9a088;
+      border: none;
+      color: #fff;
+    }
+
+    .modal-btn.cancel:hover {
+      background: #f5f0ea;
+    }
+
+    .modal-btn.confirm:hover {
+      background: #b8847a;
+    }
+
+    /* Back button in story view */
+    .story-back-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      border: none;
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Home View -->
+    <div id="home-view" class="view active">
+      <div class="sticky-header">
+        <div class="logo-container">
+          <div class="logo-icon"></div>
+          <h1>between pages</h1>
+        </div>
+        <p class="tagline">thoughts left between the pages</p>
+      </div>
+      <div id="timeline" class="timeline">
+        <!-- Timeline content will be rendered here -->
+      </div>
+      <button class="fab" onclick="showAddView()">+</button>
+    </div>
+
+    <!-- Add Book View -->
+    <div id="add-view" class="view">
+      <div class="header">
+        <button class="back-btn" onclick="showHomeView()">&larr;</button>
+        <span class="header-title">add book</span>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('search')">search</button>
+        <button class="tab" onclick="switchTab('manual')">manual</button>
+      </div>
+
+      <!-- Search Tab -->
+      <div id="search-tab" class="tab-content active">
+        <div class="search-row">
+          <input type="text" id="search-input" class="search-input" placeholder="search by title or author (中文可用)..." onkeypress="handleSearchKeypress(event)">
+          <button class="search-btn" onclick="searchBooks()">go</button>
+        </div>
+        <div id="search-results" class="search-results">
+          <div class="search-message">search for a book above</div>
+        </div>
+      </div>
+
+      <!-- Manual Tab -->
+      <div id="manual-tab" class="tab-content">
+        <div class="form">
+          <input type="text" id="manual-title" class="form-input" placeholder="book title *">
+          <input type="text" id="manual-author" class="form-input" placeholder="author">
+          <div class="cover-picker">
+            <div id="cover-preview-container" class="cover-placeholder" onclick="document.getElementById('cover-input').click()">
+              tap to add<br>cover image
+            </div>
+            <input type="file" id="cover-input" accept="image/*" onchange="handleImageUpload(event)">
+          </div>
+          <button class="save-btn" onclick="handleManualSubmit()">add book</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- About This Book View -->
+    <div id="about-view" class="view about-book-view">
+      <div class="about-header">
+        <button class="about-back-btn" onclick="showHomeView()">&larr;</button>
+        <span class="about-header-title">about this book</span>
+        <div style="width: 40px;"></div>
+      </div>
+      <div class="about-content">
+        <div class="about-cover-section">
+          <div class="about-cover-wrapper">
+            <img id="about-cover" class="about-cover" src="" alt="">
+          </div>
+        </div>
+        <div class="about-details">
+          <h2 id="about-title" class="about-title"></h2>
+          <p id="about-author" class="about-author"></p>
+        </div>
+        <div class="about-date-section">
+          <div class="about-date-label">read in</div>
+          <div id="about-date" class="about-date-value"></div>
+        </div>
+        <div class="about-summary-section">
+          <div class="about-summary-label">summary</div>
+          <div id="about-summary" class="about-summary-text"></div>
+        </div>
+      </div>
+      <div class="about-actions">
+        <button class="about-action-btn edit" onclick="editCurrentBook()">edit</button>
+        <button class="about-action-btn delete" onclick="showDeleteModal()">delete</button>
+      </div>
+    </div>
+
+    <!-- Book Detail View (Story Style) -->
+    <div id="detail-view" class="view">
+      <div class="story-container">
+        <div class="story-cover-wrap" id="story-cover-wrap">
+          <img id="story-cover" class="story-cover" src="" alt="">
+
+          <!-- Top bar with close and done -->
+          <div class="story-top-bar">
+            <button class="story-close-btn" onclick="handleCloseEditor(event)">&times;</button>
+            <button class="story-done-btn" onclick="handleDone(event)">Done</button>
+          </div>
+
+          <!-- Editable text box -->
+          <div id="text-box" class="text-box" style="display: none;">
+            <textarea id="text-box-input" class="text-box-input" rows="1" placeholder=""></textarea>
+            <div id="text-box-display" class="text-box-display" style="display: none;"></div>
+          </div>
+
+          <!-- Tap hint -->
+          <div id="tap-hint" class="tap-hint">tap to add text</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal-overlay">
+    <div class="modal">
+      <h3>delete book</h3>
+      <p>remove this book from your journal?</p>
+      <div class="modal-buttons">
+        <button class="modal-btn cancel" onclick="hideDeleteModal()">cancel</button>
+        <button class="modal-btn confirm" onclick="confirmDelete()">delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Storage key
+    const BOOKS_KEY = 'between_pages_books_v5';
+
+    // Sample books for demo
+    const SAMPLE_BOOKS = [
+      {
+        id: 'sample_1',
+        title: 'The Great Gatsby',
+        author: 'F. Scott Fitzgerald',
+        coverUrl: 'https://covers.openlibrary.org/b/isbn/9780743273565-L.jpg',
+        reflection: 'A haunting portrayal of the American Dream',
+        textBoxColor: '#ffffff',
+        textBoxX: 20,
+        textBoxY: 350,
+        dateAdded: '2024-03-15',
+        yearRead: '2024',
+        summary: 'A story of the mysteriously wealthy Jay Gatsby and his love for Daisy Buchanan, set against the backdrop of 1920s Long Island. Through the eyes of narrator Nick Carraway, Fitzgerald paints a portrait of the Jazz Age and the corruption of the American Dream.',
+      },
+      {
+        id: 'sample_2',
+        title: 'The Little Prince',
+        author: 'Antoine de Saint-Exupéry',
+        coverUrl: 'https://covers.openlibrary.org/b/isbn/9780156012195-L.jpg',
+        reflection: 'All grown-ups were once children... but only few remember it.',
+        textBoxColor: '#1a1a1a',
+        textBoxX: 20,
+        textBoxY: 280,
+        dateAdded: '2024-06-20',
+        yearRead: '2024',
+        summary: 'A poetic tale of a young prince who travels from planet to planet, learning about love, loss, and what truly matters in life. A beloved fable that speaks to both children and adults about the importance of seeing with the heart.',
+      },
+      {
+        id: 'sample_3',
+        title: 'Norwegian Wood',
+        author: 'Haruki Murakami',
+        coverUrl: 'https://covers.openlibrary.org/b/isbn/9780375704024-L.jpg',
+        reflection: 'Deep thoughts on youth, love and loss',
+        textBoxColor: '#3c3c3c',
+        textBoxX: 20,
+        textBoxY: 320,
+        dateAdded: '2023-05-22',
+        yearRead: '2023',
+        summary: 'Set in Tokyo during the late 1960s, this nostalgic story follows Toru Watanabe as he navigates the complexities of love and loss. A melancholic coming-of-age tale about memory, desire, and the haunting nature of the past.',
+      },
+    ];
+
+    // Color palette (grayscale + neutrals)
+    const COLORS = [
+      '#ffffff', '#f0f0f0', '#d0d0d0', '#a0a0a0',
+      '#707070', '#505050', '#303030', '#1a1a1a',
+      '#f5ebe0', '#dcd0c0', '#b4a090', '#8c7060',
+    ];
+
+    // App state
+    let currentView = 'home';
+    let selectedBook = null;
+    let uploadedCoverBase64 = null;
+    let textBoxX = 0;
+    let textBoxY = 0;
+
+    // Text box state
+    let isEditing = false;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let textBoxStartX = 0;
+    let textBoxStartY = 0;
+    let longPressTimer = null;
+    let coverWrapRect = null;
+
+    // Pinch-to-zoom state
+    let coverScale = 1;
+    let coverPanX = 0;
+    let coverPanY = 0;
+    let initialDistance = 0;
+    let initialScale = 1;
+    let isPinching = false;
+    let isPanning = false;
+    let panStartX = 0;
+    let panStartY = 0;
+
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeBooks();
+      renderTimeline();
+      setupPinchZoom();
+      setupHistoryNavigation();
+      setupStoryEditor();
+    });
+
+    // Initialize books with samples if empty
+    async function initializeBooks() {
+      const data = localStorage.getItem(BOOKS_KEY);
+      if (!data) {
+        localStorage.setItem(BOOKS_KEY, JSON.stringify(SAMPLE_BOOKS));
+      }
+      renderTimeline();
+    }
+
+    // History navigation
+    function setupHistoryNavigation() {
+      window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.view) {
+          if (event.state.view === 'home') {
+            showHomeView(false);
+          } else if (event.state.view === 'add') {
+            showAddView(false);
+          } else if (event.state.view === 'about' && event.state.bookId) {
+            const book = getBooks().find(b => b.id === event.state.bookId);
+            if (book) showAboutView(book, false);
+            else showHomeView(false);
+          } else if (event.state.view === 'detail' && event.state.bookId) {
+            const book = getBooks().find(b => b.id === event.state.bookId);
+            if (book) showDetailView(book, false);
+            else showHomeView(false);
+          }
+        } else {
+          showHomeView(false);
+        }
+      });
+      history.replaceState({ view: 'home' }, '', '');
+    }
+
+    // Storage functions
+    function getBooks() {
+      const data = localStorage.getItem(BOOKS_KEY);
+      return data ? JSON.parse(data) : SAMPLE_BOOKS;
+    }
+
+    function saveBooks(books) {
+      localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
+    }
+
+    function addBook(book) {
+      const books = getBooks();
+      book.id = `book_${Date.now()}`;
+      book.dateAdded = new Date().toISOString();
+      book.reflection = '';
+      book.textBoxColor = '#ffffff';
+      book.textBoxX = 10;
+      book.textBoxY = 120;
+      book.yearRead = new Date().getFullYear().toString();
+      book.summary = book.summary || '';
+      books.unshift(book);
+      saveBooks(books);
+      return book;
+    }
+
+    function updateBook(bookId, updates) {
+      const books = getBooks();
+      const index = books.findIndex(b => b.id === bookId);
+      if (index !== -1) {
+        books[index] = { ...books[index], ...updates };
+        saveBooks(books);
+        return books[index];
+      }
+      return null;
+    }
+
+    function deleteBook(bookId) {
+      const books = getBooks();
+      saveBooks(books.filter(b => b.id !== bookId));
+    }
+
+    // View navigation
+    function showHomeView(pushState = true) {
+      document.getElementById('home-view').classList.add('active');
+      document.getElementById('add-view').classList.remove('active');
+      document.getElementById('about-view').classList.remove('active');
+      document.getElementById('detail-view').classList.remove('active');
+      currentView = 'home';
+      selectedBook = null;
+      renderTimeline();
+      if (pushState) history.pushState({ view: 'home' }, '', '');
+    }
+
+    function showAddView(pushState = true) {
+      document.getElementById('home-view').classList.remove('active');
+      document.getElementById('add-view').classList.add('active');
+      document.getElementById('about-view').classList.remove('active');
+      document.getElementById('detail-view').classList.remove('active');
+      currentView = 'add';
+      resetAddForm();
+      if (pushState) history.pushState({ view: 'add' }, '', '');
+    }
+
+    function showAboutView(book, pushState = true) {
+      document.getElementById('home-view').classList.remove('active');
+      document.getElementById('add-view').classList.remove('active');
+      document.getElementById('about-view').classList.add('active');
+      document.getElementById('detail-view').classList.remove('active');
+      currentView = 'about';
+      selectedBook = book;
+      renderAboutView();
+      if (pushState) history.pushState({ view: 'about', bookId: book.id }, '', '');
+    }
+
+    function showDetailView(book, pushState = true) {
+      document.getElementById('home-view').classList.remove('active');
+      document.getElementById('add-view').classList.remove('active');
+      document.getElementById('about-view').classList.remove('active');
+      document.getElementById('detail-view').classList.add('active');
+      currentView = 'detail';
+      selectedBook = book;
+      renderDetailView();
+      if (pushState) history.pushState({ view: 'detail', bookId: book.id }, '', '');
+    }
+
+    function editCurrentBook() {
+      if (selectedBook) {
+        showDetailView(selectedBook);
+      }
+    }
+
+    // Render About This Book view
+    function renderAboutView() {
+      const book = selectedBook;
+
+      // Cover image
+      const coverImg = document.getElementById('about-cover');
+      coverImg.src = book.coverUrl || 'https://via.placeholder.com/160x240/f0f0f0/999?text=No+Cover';
+      coverImg.onerror = () => { coverImg.src = 'https://via.placeholder.com/160x240/f0f0f0/999?text=No+Cover'; };
+
+      // Book details
+      document.getElementById('about-title').textContent = book.title;
+      document.getElementById('about-author').textContent = book.author || 'Unknown Author';
+
+      // Date read
+      const yearRead = book.yearRead || new Date(book.dateAdded).getFullYear().toString();
+      document.getElementById('about-date').textContent = yearRead;
+
+      // Summary - fetch if not available
+      const summaryEl = document.getElementById('about-summary');
+      if (book.summary) {
+        summaryEl.textContent = book.summary;
+        summaryEl.classList.remove('about-summary-empty');
+        summaryEl.classList.add('about-summary-text');
+      } else {
+        summaryEl.textContent = 'loading summary...';
+        summaryEl.classList.add('about-summary-empty');
+        fetchBookSummary(book);
+      }
+    }
+
+    // Fetch book summary from Google Books API
+    async function fetchBookSummary(book) {
+      const summaryEl = document.getElementById('about-summary');
+
+      try {
+        const query = encodeURIComponent(`${book.title} ${book.author || ''}`);
+        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=3`);
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+          // Find best match
+          let description = '';
+          for (const item of data.items) {
+            const info = item.volumeInfo;
+            if (info.description) {
+              description = info.description;
+              break;
+            }
+          }
+
+          if (description) {
+            // Clean up HTML tags and truncate
+            description = description.replace(/<[^>]*>/g, '');
+            if (description.length > 350) {
+              description = description.substring(0, 350).trim() + '...';
+            }
+
+            // Update UI
+            summaryEl.textContent = description;
+            summaryEl.classList.remove('about-summary-empty');
+            summaryEl.classList.add('about-summary-text');
+
+            // Save to book data
+            updateBook(book.id, { summary: description });
+            return;
+          }
+        }
+
+        // No summary found
+        summaryEl.textContent = 'no summary available';
+        summaryEl.classList.remove('about-summary-text');
+        summaryEl.classList.add('about-summary-empty');
+
+      } catch (error) {
+        console.error('Error fetching summary:', error);
+        summaryEl.textContent = 'no summary available';
+        summaryEl.classList.remove('about-summary-text');
+        summaryEl.classList.add('about-summary-empty');
+      }
+    }
+
+    // Tab switching
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      if (tab === 'search') {
+        document.querySelector('.tab:first-child').classList.add('active');
+        document.getElementById('search-tab').classList.add('active');
+      } else {
+        document.querySelector('.tab:last-child').classList.add('active');
+        document.getElementById('manual-tab').classList.add('active');
+      }
+    }
+
+    // Render timeline (grouped by year)
+    function renderTimeline() {
+      const container = document.getElementById('timeline');
+      const books = getBooks();
+
+      if (books.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h2>no books yet</h2>
+            <p>tap + to begin your journal</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Group by year
+      const grouped = {};
+      books.forEach(book => {
+        const year = book.yearRead || new Date(book.dateAdded).getFullYear().toString();
+        if (!grouped[year]) grouped[year] = [];
+        grouped[year].push(book);
+      });
+
+      // Sort years descending
+      const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
+
+      let html = '';
+      sortedYears.forEach(year => {
+        html += `
+          <div class="year-header">
+            <div class="year-line"></div>
+            <span class="year-text">${year}</span>
+            <div class="year-line"></div>
+          </div>
+          <div class="year-grid">
+            ${grouped[year].map(book => renderBookCard(book)).join('')}
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function renderBookCard(book) {
+      const scaleFactor = 0.35;
+      const isLightColor = ['#ffffff', '#f0f0f0', '#d0d0d0', '#f5ebe0', '#dcd0c0'].includes(book.textBoxColor);
+      const textColor = isLightColor ? '#1a1a1a' : '#ffffff';
+
+      const textBoxHtml = book.reflection ? `
+        <div class="card-text-box" style="background-color: ${book.textBoxColor}; left: ${(book.textBoxX || 20) * scaleFactor}px; top: ${(book.textBoxY || 300) * scaleFactor}px; color: ${textColor};">
+          ${book.reflection.substring(0, 50)}${book.reflection.length > 50 ? '...' : ''}
+        </div>
+      ` : '';
+
+      const coverUrl = book.coverUrl || 'https://via.placeholder.com/128x192/f0f0f0/999?text=No+Cover';
+
+      return `
+        <div class="book-card" onclick='showAboutView(${JSON.stringify(book).replace(/'/g, "&#39;")})'>
+          <div class="card-inner">
+            <img src="${coverUrl}" alt="${book.title}" class="card-cover" onerror="this.src='https://via.placeholder.com/128x192/f0f0f0/999?text=No+Cover'">
+            ${textBoxHtml}
+          </div>
+          <div class="card-title">${book.title}</div>
+          <div class="card-author">${book.author || 'Unknown Author'}</div>
+        </div>
+      `;
+    }
+
+    // Setup story editor (Instagram-style)
+    function setupStoryEditor() {
+      const coverWrap = document.getElementById('story-cover-wrap');
+      const textBox = document.getElementById('text-box');
+      const textInput = document.getElementById('text-box-input');
+
+      // Tap on cover to create/show text box
+      coverWrap.addEventListener('click', handleCoverTap);
+
+      // Text input handling
+      textInput.addEventListener('input', autoGrowTextarea);
+      textInput.addEventListener('keydown', handleTextKeydown);
+      textInput.addEventListener('blur', handleTextBlur);
+      textInput.addEventListener('focus', handleTextFocus);
+
+      // Text box touch/mouse events for dragging
+      textBox.addEventListener('touchstart', handleTextBoxTouchStart, { passive: false });
+      textBox.addEventListener('touchmove', handleTextBoxTouchMove, { passive: false });
+      textBox.addEventListener('touchend', handleTextBoxTouchEnd);
+      textBox.addEventListener('mousedown', handleTextBoxMouseDown);
+      document.addEventListener('mousemove', handleTextBoxMouseMove);
+      document.addEventListener('mouseup', handleTextBoxMouseUp);
+    }
+
+    // Render detail view
+    function renderDetailView() {
+      const book = selectedBook;
+      const storyCover = document.getElementById('story-cover');
+      const storyCoverWrap = document.getElementById('story-cover-wrap');
+      const textBox = document.getElementById('text-box');
+      const textInput = document.getElementById('text-box-input');
+      const textDisplay = document.getElementById('text-box-display');
+      const tapHint = document.getElementById('tap-hint');
+
+      // Set cover image
+      if (book.coverUrl) {
+        storyCover.src = book.coverUrl;
+        storyCover.style.display = 'block';
+        storyCoverWrap.style.background = '#000';
+      } else {
+        storyCover.style.display = 'none';
+        storyCoverWrap.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+      }
+
+      // Reset zoom
+      resetCoverZoom();
+
+      // Initialize text box position (center of screen)
+      const wrapRect = storyCoverWrap.getBoundingClientRect();
+      textBoxX = book.textBoxX ?? (wrapRect.width / 2 - 100);
+      textBoxY = book.textBoxY ?? (wrapRect.height / 2 - 30);
+
+      // Load existing reflection
+      if (book.reflection) {
+        textInput.value = book.reflection;
+        textDisplay.textContent = book.reflection;
+        textBox.style.display = 'block';
+        textBox.style.left = textBoxX + 'px';
+        textBox.style.top = textBoxY + 'px';
+        showDisplayMode();
+        tapHint.style.display = 'none';
+      } else {
+        textBox.style.display = 'none';
+        textInput.value = '';
+        textDisplay.textContent = '';
+        tapHint.style.display = 'block';
+      }
+
+      isEditing = false;
+      isDragging = false;
+    }
+
+    function handleCoverTap(e) {
+      if (currentView !== 'detail') return;
+
+      // Ignore if tapping on buttons or text box
+      if (e.target.closest('.story-top-bar')) return;
+      if (e.target.closest('.text-box')) return;
+
+      const textBox = document.getElementById('text-box');
+      const textInput = document.getElementById('text-box-input');
+      const tapHint = document.getElementById('tap-hint');
+      const coverWrap = document.getElementById('story-cover-wrap');
+
+      // If no text box exists, create one at tap position
+      if (textBox.style.display === 'none') {
+        const rect = coverWrap.getBoundingClientRect();
+        textBoxX = e.clientX - rect.left - 50;
+        textBoxY = e.clientY - rect.top - 20;
+
+        // Constrain position
+        textBoxX = Math.max(10, Math.min(textBoxX, rect.width - 100));
+        textBoxY = Math.max(60, Math.min(textBoxY, rect.height - 60));
+
+        textBox.style.left = textBoxX + 'px';
+        textBox.style.top = textBoxY + 'px';
+        textBox.style.display = 'block';
+        tapHint.style.display = 'none';
+      }
+
+      // Enter edit mode
+      showEditMode();
+      textInput.focus();
+    }
+
+    function showEditMode() {
+      const textBox = document.getElementById('text-box');
+      const textInput = document.getElementById('text-box-input');
+      const textDisplay = document.getElementById('text-box-display');
+
+      isEditing = true;
+      textBox.classList.add('editing');
+      textBox.classList.remove('draggable');
+      textInput.style.display = 'block';
+      textDisplay.style.display = 'none';
+      autoGrowTextarea();
+    }
+
+    function showDisplayMode() {
+      const textBox = document.getElementById('text-box');
+      const textInput = document.getElementById('text-box-input');
+      const textDisplay = document.getElementById('text-box-display');
+
+      isEditing = false;
+      textBox.classList.remove('editing');
+      textBox.classList.add('draggable');
+      textInput.style.display = 'none';
+      textDisplay.style.display = 'block';
+      textDisplay.textContent = textInput.value;
+    }
+
+    function autoGrowTextarea() {
+      const textInput = document.getElementById('text-box-input');
+      textInput.style.height = 'auto';
+      textInput.style.height = textInput.scrollHeight + 'px';
+    }
+
+    function handleTextKeydown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        e.target.blur();
+      }
+    }
+
+    function handleTextFocus() {
+      isEditing = true;
+      const textBox = document.getElementById('text-box');
+      textBox.classList.add('editing');
+      textBox.classList.remove('draggable');
+    }
+
+    function handleTextBlur() {
+      const textInput = document.getElementById('text-box-input');
+      const textBox = document.getElementById('text-box');
+      const tapHint = document.getElementById('tap-hint');
+
+      if (textInput.value.trim()) {
+        showDisplayMode();
+      } else {
+        // No text, hide the box
+        textBox.style.display = 'none';
+        tapHint.style.display = 'block';
+      }
+    }
+
+    // Text box dragging (touch)
+    function handleTextBoxTouchStart(e) {
+      if (currentView !== 'detail') return;
+      if (isEditing) return;
+
+      const touch = e.touches[0];
+      const textBox = document.getElementById('text-box');
+
+      coverWrapRect = document.getElementById('story-cover-wrap').getBoundingClientRect();
+      textBoxStartX = textBoxX;
+      textBoxStartY = textBoxY;
+      dragStartX = touch.clientX;
+      dragStartY = touch.clientY;
+
+      // Start long press timer for drag
+      longPressTimer = setTimeout(() => {
+        isDragging = true;
+        textBox.style.opacity = '0.8';
+      }, 150);
+    }
+
+    function handleTextBoxTouchMove(e) {
+      if (currentView !== 'detail') return;
+
+      // If moved, clear long press and start dragging immediately
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+        isDragging = true;
+        document.getElementById('text-box').style.opacity = '0.8';
+      }
+
+      if (!isDragging) return;
+      e.preventDefault();
+
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStartX;
+      const deltaY = touch.clientY - dragStartY;
+
+      let newX = textBoxStartX + deltaX;
+      let newY = textBoxStartY + deltaY;
+
+      // Constrain to cover area
+      const textBox = document.getElementById('text-box');
+      const maxX = coverWrapRect.width - textBox.offsetWidth - 10;
+      const maxY = coverWrapRect.height - textBox.offsetHeight - 10;
+      newX = Math.max(10, Math.min(newX, maxX));
+      newY = Math.max(60, Math.min(newY, maxY));
+
+      textBoxX = newX;
+      textBoxY = newY;
+      textBox.style.left = textBoxX + 'px';
+      textBox.style.top = textBoxY + 'px';
+    }
+
+    function handleTextBoxTouchEnd(e) {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+
+      const textBox = document.getElementById('text-box');
+      textBox.style.opacity = '1';
+
+      if (!isDragging && !isEditing) {
+        // It was a tap, enter edit mode
+        showEditMode();
+        document.getElementById('text-box-input').focus();
+      }
+
+      isDragging = false;
+      coverWrapRect = null;
+    }
+
+    // Text box dragging (mouse)
+    function handleTextBoxMouseDown(e) {
+      if (currentView !== 'detail') return;
+      if (isEditing) return;
+      e.preventDefault();
+
+      coverWrapRect = document.getElementById('story-cover-wrap').getBoundingClientRect();
+      textBoxStartX = textBoxX;
+      textBoxStartY = textBoxY;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      isDragging = true;
+      document.getElementById('text-box').style.opacity = '0.8';
+    }
+
+    function handleTextBoxMouseMove(e) {
+      if (!isDragging || !coverWrapRect) return;
+
+      const deltaX = e.clientX - dragStartX;
+      const deltaY = e.clientY - dragStartY;
+
+      let newX = textBoxStartX + deltaX;
+      let newY = textBoxStartY + deltaY;
+
+      const textBox = document.getElementById('text-box');
+      const maxX = coverWrapRect.width - textBox.offsetWidth - 10;
+      const maxY = coverWrapRect.height - textBox.offsetHeight - 10;
+      newX = Math.max(10, Math.min(newX, maxX));
+      newY = Math.max(60, Math.min(newY, maxY));
+
+      textBoxX = newX;
+      textBoxY = newY;
+      textBox.style.left = textBoxX + 'px';
+      textBox.style.top = textBoxY + 'px';
+    }
+
+    function handleTextBoxMouseUp(e) {
+      if (isDragging) {
+        document.getElementById('text-box').style.opacity = '1';
+      }
+      isDragging = false;
+      coverWrapRect = null;
+    }
+
+    // Close editor without saving
+    function handleCloseEditor(e) {
+      e.stopPropagation();
+      showHomeView();
+    }
+
+    // Done button - save and go back to home
+    function handleDone(e) {
+      e.stopPropagation();
+      if (!selectedBook) return;
+
+      const textInput = document.getElementById('text-box-input');
+      const reflection = textInput.value.trim();
+
+      updateBook(selectedBook.id, {
+        reflection,
+        textBoxColor: '#ffffff',
+        textBoxX: Math.round(textBoxX),
+        textBoxY: Math.round(textBoxY),
+        yearRead: selectedBook.yearRead || new Date().getFullYear().toString()
+      });
+
+      showHomeView();
+    }
+
+    // Pinch-to-zoom for cover image
+    function setupPinchZoom() {
+      const coverWrap = document.getElementById('story-cover-wrap');
+      const cover = document.getElementById('story-cover');
+
+      coverWrap.addEventListener('touchstart', handlePinchStart, { passive: false });
+      coverWrap.addEventListener('touchmove', handlePinchMove, { passive: false });
+      coverWrap.addEventListener('touchend', handlePinchEnd);
+
+      // Mouse wheel zoom for desktop
+      coverWrap.addEventListener('wheel', handleWheelZoom, { passive: false });
+
+      // Double-tap to reset (only on cover, not text box)
+      let lastTap = 0;
+      coverWrap.addEventListener('touchend', (e) => {
+        if (e.target.closest('.text-box') || e.target.closest('.story-top-bar')) return;
+        const now = Date.now();
+        if (now - lastTap < 300 && e.touches.length === 0) {
+          resetCoverZoom();
+        }
+        lastTap = now;
+      });
+    }
+
+    function handlePinchStart(e) {
+      if (currentView !== 'detail') return;
+      // Don't handle pinch/pan if touching text box or buttons
+      if (e.target.closest('.text-box') || e.target.closest('.story-top-bar')) return;
+
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        isPinching = true;
+        initialDistance = getDistance(e.touches[0], e.touches[1]);
+        initialScale = coverScale;
+      } else if (e.touches.length === 1 && coverScale > 1) {
+        e.preventDefault();
+        isPanning = true;
+        panStartX = e.touches[0].clientX - coverPanX;
+        panStartY = e.touches[0].clientY - coverPanY;
+      }
+    }
+
+    function handlePinchMove(e) {
+      if (currentView !== 'detail') return;
+
+      const cover = document.getElementById('story-cover');
+
+      if (isPinching && e.touches.length === 2) {
+        e.preventDefault();
+        const distance = getDistance(e.touches[0], e.touches[1]);
+        const scale = Math.min(Math.max(initialScale * (distance / initialDistance), 1), 4);
+        coverScale = scale;
+
+        if (coverScale === 1) {
+          coverPanX = 0;
+          coverPanY = 0;
+        }
+
+        updateCoverTransform();
+      } else if (isPanning && e.touches.length === 1 && coverScale > 1) {
+        e.preventDefault();
+        coverPanX = e.touches[0].clientX - panStartX;
+        coverPanY = e.touches[0].clientY - panStartY;
+
+        // Limit panning
+        const maxPan = (coverScale - 1) * 150;
+        coverPanX = Math.min(Math.max(coverPanX, -maxPan), maxPan);
+        coverPanY = Math.min(Math.max(coverPanY, -maxPan), maxPan);
+
+        updateCoverTransform();
+      }
+    }
+
+    function handlePinchEnd(e) {
+      if (e.touches.length === 0) {
+        isPinching = false;
+        isPanning = false;
+      } else if (e.touches.length === 1) {
+        isPinching = false;
+        if (coverScale > 1) {
+          isPanning = true;
+          panStartX = e.touches[0].clientX - coverPanX;
+          panStartY = e.touches[0].clientY - coverPanY;
+        }
+      }
+    }
+
+    function handleWheelZoom(e) {
+      if (currentView !== 'detail') return;
+      e.preventDefault();
+
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      coverScale = Math.min(Math.max(coverScale * delta, 1), 4);
+
+      if (coverScale === 1) {
+        coverPanX = 0;
+        coverPanY = 0;
+      }
+
+      updateCoverTransform();
+    }
+
+    function getDistance(touch1, touch2) {
+      const dx = touch1.clientX - touch2.clientX;
+      const dy = touch1.clientY - touch2.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function updateCoverTransform() {
+      const cover = document.getElementById('story-cover');
+      cover.style.transform = `translate(-50%, -50%) scale(${coverScale}) translate(${coverPanX / coverScale}px, ${coverPanY / coverScale}px)`;
+    }
+
+    function resetCoverZoom() {
+      coverScale = 1;
+      coverPanX = 0;
+      coverPanY = 0;
+      updateCoverTransform();
+    }
+
+    // Search books (Open Library API + Google Books for Chinese support)
+    async function searchBooks() {
+      const query = document.getElementById('search-input').value.trim();
+      if (!query) return;
+
+      const resultsContainer = document.getElementById('search-results');
+      resultsContainer.innerHTML = '<div class="search-message">searching...</div>';
+
+      // Detect if query contains Chinese characters
+      const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf]/.test(query);
+
+      try {
+        let results = [];
+
+        if (hasChinese) {
+          // Use Google Books API for better Chinese book support
+          const googleResponse = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=15&langRestrict=zh`);
+          const googleData = await googleResponse.json();
+
+          if (googleData.items && googleData.items.length > 0) {
+            results = googleData.items.map(item => {
+              const info = item.volumeInfo;
+              // Get summary and truncate to reasonable length
+              let summary = info.description || '';
+              if (summary.length > 300) {
+                summary = summary.substring(0, 300).trim() + '...';
+              }
+              return {
+                title: info.title || 'Unknown Title',
+                author: info.authors?.join(', ') || 'Unknown Author',
+                thumbUrl: info.imageLinks?.thumbnail?.replace('http:', 'https:') || '',
+                coverUrl: info.imageLinks?.thumbnail?.replace('http:', 'https:').replace('zoom=1', 'zoom=2') || '',
+                summary: summary
+              };
+            });
+          }
+        }
+
+        // Also search Open Library (works well for English and some Chinese)
+        const openLibResponse = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=10`);
+        const openLibData = await openLibResponse.json();
+
+        if (openLibData.docs && openLibData.docs.length > 0) {
+          const openLibResults = openLibData.docs.map(doc => ({
+            title: doc.title || 'Unknown Title',
+            author: doc.author_name?.join(', ') || 'Unknown Author',
+            thumbUrl: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : '',
+            coverUrl: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg` : '',
+            summary: doc.first_sentence?.join(' ') || '',
+            openLibraryKey: doc.key || ''
+          }));
+
+          // Merge results, prioritizing Chinese results for Chinese queries
+          if (hasChinese) {
+            results = [...results, ...openLibResults];
+          } else {
+            results = [...openLibResults, ...results];
+          }
+        }
+
+        // Remove duplicates by title (rough match)
+        const seen = new Set();
+        results = results.filter(r => {
+          const key = r.title.toLowerCase().substring(0, 20);
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        }).slice(0, 15);
+
+        if (results.length === 0) {
+          resultsContainer.innerHTML = '<div class="search-message">no books found. try a different search.</div>';
+          return;
+        }
+
+        resultsContainer.innerHTML = results.map(book => {
+          const thumbUrl = book.thumbUrl || 'https://via.placeholder.com/50x75/f0f0f0/999?text=No+Cover';
+
+          return `
+            <div class="result-item" onclick="addBookFromSearch(${JSON.stringify({
+              title: book.title,
+              author: book.author,
+              coverUrl: book.coverUrl,
+              summary: book.summary || ''
+            }).replace(/"/g, '&quot;')})">
+              <img src="${thumbUrl}" alt="${book.title}" class="result-cover" onerror="this.src='https://via.placeholder.com/50x75/f0f0f0/999?text=No+Cover'">
+              <div class="result-info">
+                <div class="result-title">${book.title}</div>
+                <div class="result-author">${book.author}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (error) {
+        resultsContainer.innerHTML = '<div class="search-message">error searching. please try again.</div>';
+        console.error('Search error:', error);
+      }
+    }
+
+    function handleSearchKeypress(event) {
+      if (event.key === 'Enter') searchBooks();
+    }
+
+    function addBookFromSearch(bookData) {
+      const book = addBook({
+        title: bookData.title,
+        author: bookData.author,
+        coverUrl: bookData.coverUrl || '',
+        summary: bookData.summary || ''
+      });
+      showDetailView(book);
+    }
+
+    // Manual form
+    function handleManualSubmit() {
+      const title = document.getElementById('manual-title').value.trim();
+      const author = document.getElementById('manual-author').value.trim();
+
+      if (!title) {
+        alert('please enter a book title.');
+        return;
+      }
+
+      const book = addBook({
+        title,
+        author: author || 'Unknown Author',
+        coverUrl: uploadedCoverBase64 || 'https://via.placeholder.com/128x192/f0f0f0/999?text=No+Cover'
+      });
+
+      showDetailView(book);
+    }
+
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        uploadedCoverBase64 = e.target.result;
+        const container = document.getElementById('cover-preview-container');
+        container.innerHTML = `<img src="${uploadedCoverBase64}" alt="Cover preview" class="cover-preview">`;
+        container.classList.remove('cover-placeholder');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetAddForm() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('search-results').innerHTML = '<div class="search-message">search for a book above</div>';
+      document.getElementById('manual-title').value = '';
+      document.getElementById('manual-author').value = '';
+      uploadedCoverBase64 = null;
+
+      const container = document.getElementById('cover-preview-container');
+      container.innerHTML = 'tap to add<br>cover image';
+      container.classList.add('cover-placeholder');
+
+      switchTab('search');
+    }
+
+
+    // Delete modal
+    function showDeleteModal() {
+      document.getElementById('delete-modal').classList.add('active');
+    }
+
+    function hideDeleteModal() {
+      document.getElementById('delete-modal').classList.remove('active');
+    }
+
+    function confirmDelete() {
+      if (!selectedBook) return;
+      deleteBook(selectedBook.id);
+      hideDeleteModal();
+      showHomeView();
+    }
+  </script>
+</body>
+</html>
