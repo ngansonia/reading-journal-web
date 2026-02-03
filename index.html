@@ -2,8 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Between pages...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Between Pages</title>
+
+  <!-- PWA Meta Tags -->
+  <meta name="description" content="A beautiful reading journal to capture thoughts left between the pages">
+  <meta name="theme-color" content="#5c4d3d">
+  <meta name="background-color" content="#faf8f5">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- iOS PWA Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Between Pages">
+
+  <!-- iOS Icons -->
+  <link rel="apple-touch-icon" href="icons/icon-152.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72.png">
+  <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96.png">
+  <link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-96.png">
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
 
@@ -13,12 +39,26 @@
       box-sizing: border-box;
     }
 
+    /* PWA: Prevent overscroll/bounce effect */
+    html {
+      overflow: hidden;
+      height: 100%;
+    }
+
     body {
       font-family: 'Courier Prime', 'Courier New', Courier, monospace;
       background-color: #faf8f5;
       color: #3d3428;
       min-height: 100vh;
       letter-spacing: 0.5px;
+      overflow: auto;
+      height: 100%;
+      -webkit-overflow-scrolling: touch;
+      /* PWA: Handle safe areas for notched devices */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
     }
 
     .container {
@@ -586,6 +626,13 @@
       position: relative;
       overflow: hidden;
       background: #000;
+      z-index: 5;
+    }
+
+    .edit-text-static {
+      z-index: 15;
+      touch-action: none;
+      cursor: move;
     }
 
     .edit-cover-bg {
@@ -626,10 +673,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 18;
+      z-index: 50;
       opacity: 0;
       visibility: hidden;
       transition: opacity 0.2s, transform 0.2s, background 0.2s;
+      pointer-events: auto;
     }
 
     .edit-trash.visible {
@@ -677,7 +725,9 @@
       letter-spacing: 2px;
       cursor: pointer;
       text-transform: lowercase;
-      z-index: 20;
+      z-index: 50;
+      pointer-events: auto;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .edit-save-btn:hover {
@@ -691,7 +741,7 @@
       right: 16px;
       display: flex;
       gap: 8px;
-      z-index: 25;
+      z-index: 45;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease;
@@ -703,8 +753,8 @@
     }
 
     .color-tool-btn {
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       border: none;
       background: rgba(255, 255, 255, 0.9);
@@ -714,6 +764,8 @@
       justify-content: center;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       transition: transform 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .color-tool-btn:hover {
@@ -943,10 +995,23 @@
       background: #000;
       overflow: hidden;
       animation: bookViewIn 0.35s ease forwards;
+      touch-action: none;
     }
 
     .book-view-container.closing {
       animation: bookViewOut 0.5s ease-out forwards;
+    }
+
+    .book-view-container.swipe-transition {
+      transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1), border-radius 0.35s ease;
+    }
+
+    .book-view-container.swipe-exit {
+      transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.3s ease-out, border-radius 0.3s ease;
+    }
+
+    #home-view.swipe-fade {
+      transition: opacity 0.3s ease-out;
     }
 
     @keyframes bookViewIn {
@@ -973,22 +1038,29 @@
 
     /* 3D Cube transition */
     #book-view {
-      perspective: 4000px;
-      perspective-origin: 50% 50%;
       overflow: hidden;
+      touch-action: none;
     }
 
     .cube-wrapper {
       position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      transform-style: preserve-3d;
+      width: 100vw;
+      height: 100vh;
       z-index: 60;
+      overflow: hidden;
     }
 
-    .cube-wrapper.cube-animate {
+    .cube-scene {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transform-origin: 50% 50%;
+    }
+
+    .cube-scene.cube-animate {
       transition: transform 0.4s cubic-bezier(0.33, 0, 0.2, 1);
     }
 
@@ -1001,6 +1073,7 @@
       backface-visibility: hidden;
       background: #000;
       overflow: hidden;
+      transform-origin: 50% 50%;
     }
 
     .cube-face .book-view-bg {
@@ -1021,27 +1094,38 @@
       left: 0;
       right: 0;
       bottom: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       z-index: 2;
+      transform-style: flat;
     }
 
     .cube-face .book-view-cover {
-      max-width: 70%;
-      max-height: 75%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: 100%;
       object-fit: contain;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     }
 
     .cube-face .book-view-text {
       position: absolute;
-      padding: 8px 12px;
-      font-size: 14px;
+      padding: 10px 14px;
+      background: #ffffff;
+      color: #1a1a1a;
+      z-index: 3;
+      font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+      font-size: 16px;
       line-height: 1.4;
-      border-radius: 4px;
-      max-width: 200px;
+      white-space: pre-wrap;
       word-wrap: break-word;
+      max-width: calc(100% - 20px);
+      /* Prevent 3D transform from affecting text rendering */
+      transform: translateZ(0);
+      transform-style: flat;
+      -webkit-font-smoothing: antialiased;
     }
 
     .book-view-bg {
@@ -1799,6 +1883,8 @@
     // Cube gesture state
     let cubeGestureActive = false;
     let cubeDirection = null; // 'left' or 'right'
+    let cubeScene = null;
+    let cubePerspective = 0;
     let cubeDragStartX = 0;
     let cubeDragStartY = 0;
     let cubeCurrentX = 0;
@@ -1809,11 +1895,26 @@
     let cubeNextBook = null;
     let cubeHalfWidth = 0;
 
+    // Swipe-down gesture state (Instagram Stories style)
+    let swipeDownActive = false;
+    let swipeDownCurrentY = 0;
+    let swipeDownThreshold = 0;
+    let swipeDownIsAnimating = false;
+
+    // Track if touch started properly
+    let touchStarted = false;
+
     function handleBookViewTouchStart(e) {
       if (currentView !== 'book') return;
       if (e.target.closest('.action-menu') || e.target.closest('.book-view-more-btn')) return;
-      if (cubeIsAnimating) return;
 
+      // Reset animation flags if they got stuck
+      if (cubeIsAnimating || swipeDownIsAnimating) {
+        cubeIsAnimating = false;
+        swipeDownIsAnimating = false;
+      }
+
+      touchStarted = true;
       cubeDragStartX = e.touches[0].clientX;
       cubeDragStartY = e.touches[0].clientY;
       cubeCurrentX = 0;
@@ -1821,6 +1922,11 @@
       cubeDirection = null;
       cubeThreshold = window.innerWidth * 0.28;
       cubeHalfWidth = window.innerWidth / 2;
+
+      // Swipe-down initialization
+      swipeDownActive = false;
+      swipeDownCurrentY = 0;
+      swipeDownThreshold = window.innerHeight * 0.25; // 25% of screen height
 
       // Get adjacent books
       const books = getBooks();
@@ -1831,34 +1937,39 @@
 
     function handleBookViewTouchMove(e) {
       if (currentView !== 'book') return;
-      if (cubeIsAnimating) return;
+      if (!touchStarted) return; // touchstart didn't fire properly
 
       const touchX = e.touches[0].clientX;
       const touchY = e.touches[0].clientY;
       const deltaX = touchX - cubeDragStartX;
       const deltaY = touchY - cubeDragStartY;
 
-      // Check for vertical swipe (swipe down to exit)
-      if (!cubeGestureActive && deltaY > 60 && Math.abs(deltaX) < 40) {
-        showHomeView();
+      // Handle active swipe-down gesture first
+      if (swipeDownActive) {
+        e.preventDefault();
+        swipeDownCurrentY = Math.max(0, deltaY); // Only allow downward movement
+
+        const container = document.getElementById('book-view-container');
+        const screenHeight = window.innerHeight;
+
+        // Calculate progress (0 to 1)
+        const progress = Math.min(swipeDownCurrentY / screenHeight, 1);
+
+        // Progressive scale: 1.0 -> 0.92 as user drags
+        const scale = 1 - (progress * 0.08);
+
+        // Progressive opacity for home view behind: 0 -> 1
+        const homeOpacity = Math.min(progress * 2, 1);
+
+        // Apply transforms
+        container.style.transform = `translateY(${swipeDownCurrentY}px) scale(${scale})`;
+        container.style.borderRadius = `${progress * 16}px`;
+        document.getElementById('home-view').style.opacity = homeOpacity;
+
         return;
       }
 
-      // Determine if this is a horizontal gesture
-      if (!cubeGestureActive && Math.abs(deltaX) > 15 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
-        // Check if we can go in this direction
-        if (deltaX < 0 && !cubeNextBook) return;
-        if (deltaX > 0 && !cubePrevBook) return;
-
-        cubeGestureActive = true;
-        cubeDirection = deltaX < 0 ? 'left' : 'right';
-
-        // Create the cube
-        createCube(cubeDirection);
-
-        e.preventDefault();
-      }
-
+      // Handle active cube gesture
       if (cubeGestureActive) {
         e.preventDefault();
         cubeCurrentX = deltaX;
@@ -1872,12 +1983,68 @@
         }
 
         updateCubeRotation();
+        return;
+      }
+
+      // Determine gesture direction (only if no gesture active yet)
+      const absX = Math.abs(deltaX);
+      const absY = deltaY; // We only care about downward (positive) for swipe-down
+
+      // Need minimum movement to determine gesture type
+      const totalMove = absX + Math.abs(deltaY);
+      if (totalMove < 10) return;
+
+      // Determine dominant direction
+      // Swipe DOWN: moving downward and vertical is dominant
+      if (deltaY > 0 && deltaY >= absX) {
+        swipeDownActive = true;
+        // Clear any entry animation that might conflict with transform
+        const container = document.getElementById('book-view-container');
+        container.style.animation = 'none';
+        // Show home view behind
+        document.getElementById('home-view').style.opacity = '0';
+        document.getElementById('home-view').classList.add('active');
+        e.preventDefault();
+        return;
+      }
+
+      // Swipe LEFT/RIGHT: horizontal is dominant (or moving up)
+      if (absX > Math.abs(deltaY) || deltaY < 0) {
+        if (absX < 10) return; // need some horizontal movement for cube
+        // Check if we can go in this direction
+        if (deltaX < 0 && !cubeNextBook) return;
+        if (deltaX > 0 && !cubePrevBook) return;
+
+        cubeGestureActive = true;
+        cubeDirection = deltaX < 0 ? 'left' : 'right';
+        createCube(cubeDirection);
+        e.preventDefault();
+        return;
       }
     }
 
+    let lastTouchEndTime = 0;
+
     function handleBookViewTouchEnd(e) {
       if (currentView !== 'book') return;
+
+      // Reset touch tracking
+      touchStarted = false;
+
       if (e.target.closest('.action-menu') || e.target.closest('.book-view-more-btn')) return;
+
+      // Handle swipe-down gesture end
+      if (swipeDownActive) {
+        swipeDownActive = false;
+        const passedThreshold = swipeDownCurrentY > swipeDownThreshold;
+
+        if (passedThreshold) {
+          completeSwipeDownExit();
+        } else {
+          snapBackSwipeDown();
+        }
+        return;
+      }
 
       if (cubeGestureActive) {
         cubeGestureActive = false;
@@ -1888,15 +2055,80 @@
         } else {
           snapBackCube();
         }
-      } else if (!cubeIsAnimating) {
+      } else if (!cubeIsAnimating && !swipeDownIsAnimating) {
+        lastTouchEndTime = Date.now();
         handleBookViewTap();
       }
+    }
+
+    function completeSwipeDownExit() {
+      swipeDownIsAnimating = true;
+      const container = document.getElementById('book-view-container');
+      const homeView = document.getElementById('home-view');
+      const screenHeight = window.innerHeight;
+
+      // Add transitions for smooth animation
+      container.classList.add('swipe-exit');
+      homeView.classList.add('swipe-fade');
+
+      // Animate to fully off-screen
+      container.style.transform = `translateY(${screenHeight}px) scale(0.9)`;
+      container.style.opacity = '0';
+      homeView.style.opacity = '1';
+
+      setTimeout(() => {
+        // Reset and complete transition
+        container.classList.remove('swipe-exit');
+        container.style.transform = '';
+        container.style.opacity = '';
+        container.style.borderRadius = '';
+        homeView.classList.remove('swipe-fade');
+        homeView.style.opacity = '';
+
+        // Complete the view switch
+        document.getElementById('book-view').classList.remove('active');
+        currentView = 'home';
+        selectedBook = null;
+        renderTimeline();
+        history.pushState({ view: 'home' }, '', '');
+
+        swipeDownIsAnimating = false;
+      }, 300);
+    }
+
+    function snapBackSwipeDown() {
+      swipeDownIsAnimating = true;
+      const container = document.getElementById('book-view-container');
+      const homeView = document.getElementById('home-view');
+
+      // Add transitions for smooth snap-back
+      container.classList.add('swipe-transition');
+      homeView.classList.add('swipe-fade');
+
+      // Animate back to original position
+      container.style.transform = 'translateY(0) scale(1)';
+      container.style.borderRadius = '0';
+      homeView.style.opacity = '0';
+
+      setTimeout(() => {
+        // Clean up
+        container.classList.remove('swipe-transition');
+        container.style.transform = '';
+        container.style.borderRadius = '';
+        homeView.classList.remove('swipe-fade', 'active');
+        homeView.style.opacity = '';
+
+        swipeDownIsAnimating = false;
+      }, 350);
     }
 
     function handleBookViewClick(e) {
       if (currentView !== 'book') return;
       if (e.target.closest('.action-menu') || e.target.closest('.book-view-more-btn')) return;
-      if (cubeIsAnimating) return;
+      if (cubeIsAnimating || swipeDownIsAnimating) return;
+
+      // Prevent double-toggle from touch + click on touch devices
+      if (Date.now() - lastTouchEndTime < 300) return;
 
       if (actionMenuVisible) {
         hideActionMenu();
@@ -1920,29 +2152,45 @@
       // Hide original container
       container.style.visibility = 'hidden';
 
-      // Create cube wrapper - this is what rotates as one unit
+      // Calculate perspective - should be larger than the cube radius for realistic depth
+      cubePerspective = cubeHalfWidth * 3;
+
+      // Create cube wrapper
       cubeWrapper = document.createElement('div');
       cubeWrapper.className = 'cube-wrapper';
       cubeWrapper.id = 'cube-wrapper';
+      cubeWrapper.style.perspective = `${cubePerspective}px`;
+      cubeWrapper.style.perspectiveOrigin = '50% 50%';
 
-      // Create front face (current book)
+      // Create cube scene (this rotates)
+      cubeScene = document.createElement('div');
+      cubeScene.className = 'cube-scene';
+      cubeScene.id = 'cube-scene';
+
+      // Create front face (current book) - positioned at Z = +halfWidth
       const frontFace = createCubeFace(selectedBook);
       frontFace.classList.add('cube-face-front');
       frontFace.style.transform = `translateZ(${cubeHalfWidth}px)`;
 
-      // Create adjacent face - rotated 90deg and pushed forward (places it on the side)
+      // Create adjacent face - rotated 90deg and positioned on the side
       const adjacentFace = createCubeFace(adjacentBook);
       adjacentFace.classList.add('cube-face-adjacent');
 
       if (direction === 'left') {
+        // Right side face (swiping left reveals it)
         adjacentFace.style.transform = `rotateY(90deg) translateZ(${cubeHalfWidth}px)`;
       } else {
+        // Left side face (swiping right reveals it)
         adjacentFace.style.transform = `rotateY(-90deg) translateZ(${cubeHalfWidth}px)`;
       }
 
-      cubeWrapper.appendChild(frontFace);
-      cubeWrapper.appendChild(adjacentFace);
+      cubeScene.appendChild(frontFace);
+      cubeScene.appendChild(adjacentFace);
+      cubeWrapper.appendChild(cubeScene);
       bookView.appendChild(cubeWrapper);
+
+      // Initialize scene position (pushed back so front face is at screen plane)
+      cubeScene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(0deg)`;
     }
 
     function createCubeFace(book) {
@@ -1997,40 +2245,30 @@
     }
 
     function updateCubeRotation() {
-      if (!cubeWrapper) return;
+      if (!cubeScene) return;
 
       const screenWidth = window.innerWidth;
       const progress = cubeCurrentX / screenWidth;
 
-      // Add slight deceleration near 90deg
+      // Eased progress for smoother feel
       const absProgress = Math.abs(progress);
       const easedProgress = 1 - Math.pow(1 - absProgress, 2);
       const rotation = Math.sign(progress) * easedProgress * 90;
 
-      // Scale compensation to keep faces fullscreen
-      const perspective = 4000;
-      const baseScale = (perspective + cubeHalfWidth) / perspective;
-      // Extra boost during rotation
-      const rotationRad = Math.abs(rotation) * Math.PI / 180;
-      const rotationBoost = 1 + Math.sin(rotationRad) * (cubeHalfWidth / perspective) * 2;
-      const scale = baseScale * rotationBoost;
-
-      // Rotate the entire cube as one unit
-      cubeWrapper.style.transform = `translateZ(-${cubeHalfWidth}px) scale(${scale}) rotateY(${rotation}deg)`;
+      // Rotate the cube scene
+      cubeScene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(${rotation}deg)`;
     }
 
     function completeCubeTransition() {
       cubeIsAnimating = true;
       const newBook = cubeDirection === 'left' ? cubeNextBook : cubePrevBook;
 
-      // Add transition
-      cubeWrapper.classList.add('cube-animate');
+      // Add transition to the scene
+      cubeScene.classList.add('cube-animate');
 
       // Complete rotation to 90 degrees
       const finalRotation = cubeDirection === 'left' ? -90 : 90;
-      const perspective = 4000;
-      const baseScale = (perspective + cubeHalfWidth) / perspective;
-      cubeWrapper.style.transform = `translateZ(-${cubeHalfWidth}px) scale(${baseScale}) rotateY(${finalRotation}deg)`;
+      cubeScene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(${finalRotation}deg)`;
 
       setTimeout(() => {
         // Update state
@@ -2046,6 +2284,7 @@
         if (cubeWrapper) {
           cubeWrapper.remove();
           cubeWrapper = null;
+          cubeScene = null;
         }
 
         cubeIsAnimating = false;
@@ -2055,13 +2294,11 @@
     function snapBackCube() {
       cubeIsAnimating = true;
 
-      // Add transition
-      cubeWrapper.classList.add('cube-animate');
+      // Add transition to the scene
+      cubeScene.classList.add('cube-animate');
 
       // Return to 0 degrees
-      const perspective = 4000;
-      const baseScale = (perspective + cubeHalfWidth) / perspective;
-      cubeWrapper.style.transform = `translateZ(-${cubeHalfWidth}px) scale(${baseScale}) rotateY(0deg)`;
+      cubeScene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(0deg)`;
 
       setTimeout(() => {
         // Show original container
@@ -2072,6 +2309,7 @@
         if (cubeWrapper) {
           cubeWrapper.remove();
           cubeWrapper = null;
+          cubeScene = null;
         }
 
         cubeIsAnimating = false;
@@ -2238,9 +2476,69 @@
       const coverWrap = document.getElementById('edit-cover-wrap');
       const textBox = document.getElementById('edit-text-box');
       const textInput = document.getElementById('edit-text-box-input');
+      const saveBtn = document.querySelector('.edit-save-btn');
 
       // Tap on cover to create/show text box
       coverWrap.addEventListener('click', handleEditCoverTap);
+      // Also handle touch for mobile
+      coverWrap.addEventListener('touchend', (e) => {
+        // Only handle if it's a single touch and not on a text box
+        if (e.changedTouches.length === 1 &&
+            !e.target.closest('.edit-text-box') &&
+            !e.target.closest('.edit-text-static')) {
+          // Create a synthetic click event for the tap
+          const touch = e.changedTouches[0];
+          handleEditCoverTap({
+            target: e.target,
+            clientX: touch.clientX,
+            clientY: touch.clientY
+          });
+        }
+      });
+
+      // Save button touch handler for mobile
+      saveBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleSave();
+      }, { passive: false });
+
+      // Color toolbar button touch handlers for mobile
+      const bgColorBtn = document.getElementById('bg-color-btn');
+      const textColorBtn = document.getElementById('text-color-btn');
+      const eyedropperBtn = document.getElementById('eyedropper-btn');
+
+      bgColorBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleColorPicker('bg');
+      }, { passive: false });
+
+      textColorBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleColorPicker('text');
+      }, { passive: false });
+
+      eyedropperBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleEyedropper();
+      }, { passive: false });
+
+      // Color swatch touch handler (event delegation)
+      const paletteColors = document.getElementById('palette-colors');
+      paletteColors.addEventListener('touchend', (e) => {
+        const swatch = e.target.closest('.color-swatch');
+        if (swatch) {
+          e.preventDefault();
+          e.stopPropagation();
+          const color = swatch.style.background || swatch.style.backgroundColor;
+          // Convert rgb to hex if needed
+          const hexColor = color.startsWith('#') ? color : rgbToHex(color);
+          applyColor(hexColor);
+        }
+      }, { passive: false });
 
       // Text input handling
       textInput.addEventListener('input', autoGrowTextarea);
@@ -2352,6 +2650,8 @@
 
     function handleStaticTextBoxTouchStart(e, id) {
       if (currentView !== 'edit') return;
+      e.stopPropagation();
+
       const touch = e.touches[0];
       const tb = editTextBoxes.find(t => t.id === id);
       if (!tb) return;
@@ -2415,6 +2715,9 @@
     }
 
     function handleStaticTextBoxTouchEnd(e) {
+      const wasDragging = isDragging;
+      const id = currentTextBoxId;
+
       if (longPressTimer) {
         clearTimeout(longPressTimer);
         longPressTimer = null;
@@ -2423,7 +2726,7 @@
       const trash = document.getElementById('edit-trash');
       const el = e.target.closest('.edit-text-static');
 
-      if (isDragging && trash.classList.contains('active')) {
+      if (wasDragging && trash.classList.contains('active')) {
         // Delete this text box
         editTextBoxes = editTextBoxes.filter(tb => tb.id !== currentTextBoxId);
         el.remove();
@@ -2434,6 +2737,12 @@
       trash.classList.remove('visible', 'active');
       isDragging = false;
       coverWrapRect = null;
+
+      // Handle tap (non-drag) - activate the text box
+      if (!wasDragging && id !== null) {
+        e.preventDefault();
+        activateTextBox(id);
+      }
     }
 
     function handleStaticTextBoxMouseDown(e, id) {
@@ -2755,6 +3064,16 @@
       const b = parseInt(hex.slice(5, 7), 16);
       const brightness = (r * 299 + g * 587 + b * 114) / 1000;
       return brightness > 180;
+    }
+
+    function rgbToHex(rgb) {
+      // Handle both "rgb(r, g, b)" and "rgba(r, g, b, a)" formats
+      const match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (!match) return rgb;
+      const r = parseInt(match[1]).toString(16).padStart(2, '0');
+      const g = parseInt(match[2]).toString(16).padStart(2, '0');
+      const b = parseInt(match[3]).toString(16).padStart(2, '0');
+      return `#${r}${g}${b}`;
     }
 
     function toggleColorPicker(mode) {
@@ -3447,6 +3766,34 @@
       deleteBook(selectedBook.id);
       hideDeleteModal();
       showHomeView();
+    }
+
+    // ==========================================
+    // PWA Service Worker Registration
+    // ==========================================
+
+    // Register service worker for offline support
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((registration) => {
+            console.log('Service Worker registered:', registration.scope);
+
+            // Check for updates periodically
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // New version available - you could show an update prompt here
+                  console.log('New version available! Refresh to update.');
+                }
+              });
+            });
+          })
+          .catch((error) => {
+            console.log('Service Worker registration failed:', error);
+          });
+      });
     }
   </script>
 </body>
