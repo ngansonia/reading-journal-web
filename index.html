@@ -1930,14 +1930,23 @@
       document.getElementById('book-view-more-btn').classList.remove('visible');
       document.getElementById('action-menu').classList.remove('visible');
 
-      // Set cover image
+      // Set cover image (only if different to avoid reload flicker)
       const coverUrl = book.coverUrl || 'https://via.placeholder.com/300x450/f0f0f0/999?text=No+Cover';
-      document.getElementById('book-view-cover').src = coverUrl;
-      document.getElementById('book-view-bg').style.backgroundImage = `url(${coverUrl})`;
+      const bookViewCover = document.getElementById('book-view-cover');
+      const bookViewBg = document.getElementById('book-view-bg');
+      const editCover = document.getElementById('edit-cover');
+      const editCoverBg = document.getElementById('edit-cover-bg');
+
+      if (bookViewCover.src !== coverUrl) {
+        bookViewCover.src = coverUrl;
+      }
+      bookViewBg.style.backgroundImage = `url(${coverUrl})`;
 
       // Pre-load edit view cover to avoid delay when switching
-      document.getElementById('edit-cover').src = coverUrl;
-      document.getElementById('edit-cover-bg').style.backgroundImage = `url(${coverUrl})`;
+      if (editCover.src !== coverUrl) {
+        editCover.src = coverUrl;
+      }
+      editCoverBg.style.backgroundImage = `url(${coverUrl})`;
 
       // Clear existing text boxes
       const textContainer = document.getElementById('book-view-cover-wrap');
@@ -2739,13 +2748,19 @@
       const textInput = document.getElementById('edit-text-box-input');
       const textDisplay = document.getElementById('edit-text-box-display');
 
-      // Set cover image
+      // Set cover image (only if different to avoid reload flicker)
       const coverUrl = book.coverUrl || 'https://via.placeholder.com/300x450/f0f0f0/999?text=No+Cover';
-      editCover.src = coverUrl;
-      editCoverBg.style.backgroundImage = `url(${coverUrl})`;
+      const coverChanged = editCover.src !== coverUrl;
 
-      // Extract colors from cover when loaded
-      editCover.onload = () => extractColorsFromCover(editCover);
+      if (coverChanged) {
+        editCover.src = coverUrl;
+        // Extract colors from cover when loaded
+        editCover.onload = () => extractColorsFromCover(editCover);
+      } else if (editCover.complete) {
+        // Image already loaded, extract colors immediately
+        extractColorsFromCover(editCover);
+      }
+      editCoverBg.style.backgroundImage = `url(${coverUrl})`;
 
       // Load existing text boxes (support both old and new format)
       if (book.textBoxes && book.textBoxes.length > 0) {
