@@ -3524,8 +3524,10 @@
       }
     }
 
-    // Done button - dismiss keyboard
+    // Done button - dismiss keyboard and close pickers
     function dismissKeyboard() {
+      hideColorPicker();
+      hideFontPicker();
       const textInput = document.getElementById('edit-text-box-input');
       textInput.blur();
     }
