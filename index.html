@@ -3524,12 +3524,37 @@
       }
     }
 
-    // Done button - dismiss keyboard and close pickers
+    // Done button - save text box, close pickers, hide toolbar
     function dismissKeyboard() {
       hideColorPicker();
       hideFontPicker();
+
       const textInput = document.getElementById('edit-text-box-input');
-      textInput.blur();
+      const textBox = document.getElementById('edit-text-box');
+
+      // If text input has focus, blur it (will trigger handleEditTextBlur)
+      if (document.activeElement === textInput) {
+        textInput.blur();
+        return;
+      }
+
+      // Otherwise, manually save and close
+      isEditing = false;
+
+      if (textInput.value.trim()) {
+        saveCurrentTextBoxToArray();
+        textBox.style.display = 'none';
+        textInput.value = '';
+        document.getElementById('edit-text-box-display').textContent = '';
+        renderEditTextBoxes();
+      } else if (currentTextBoxId !== null) {
+        // No text, remove empty text box
+        editTextBoxes = editTextBoxes.filter(tb => tb.id !== currentTextBoxId);
+        textBox.style.display = 'none';
+        currentTextBoxId = null;
+      }
+
+      hideColorToolbar();
     }
 
     // Eyedropper functions
