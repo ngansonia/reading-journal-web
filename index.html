@@ -734,88 +734,170 @@
       background: #4a3e31;
     }
 
-    /* Color Picker Toolbar */
-    .color-toolbar {
+    /* Stories-Style Toolbar */
+    .stories-toolbar {
       position: absolute;
       top: 16px;
-      right: 16px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
+      align-items: center;
       gap: 8px;
+      padding: 6px 10px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 24px;
       z-index: 45;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease;
     }
 
-    .color-toolbar.visible {
+    .stories-toolbar.visible {
       opacity: 1;
       pointer-events: auto;
     }
 
-    .color-tool-btn {
-      width: 44px;
-      height: 44px;
+    .toolbar-btn {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       border: none;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.15);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      transition: transform 0.2s ease;
+      transition: background 0.2s ease, transform 0.2s ease;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
-    }
-
-    .color-tool-btn:hover {
-      transform: scale(1.1);
-    }
-
-    .color-tool-btn.active {
-      background: #5c4d3d;
-    }
-
-    .color-tool-btn.active .color-tool-icon {
       color: #fff;
     }
 
-    .color-tool-icon {
+    .toolbar-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .toolbar-btn:active {
+      transform: scale(0.95);
+    }
+
+    .toolbar-btn.active {
+      background: rgba(255, 255, 255, 0.9);
+      color: #1a1a1a;
+    }
+
+    .toolbar-btn.done-btn {
+      width: auto;
+      padding: 0 16px;
+      border-radius: 20px;
+      font-family: inherit;
       font-size: 14px;
-      color: #5c4d3d;
+      font-weight: 500;
+      letter-spacing: 0.5px;
     }
 
-    .color-tool-icon.bg-icon {
-      width: 16px;
-      height: 16px;
-      border-radius: 3px;
-      border: 2px solid #5c4d3d;
-      background: linear-gradient(135deg, #faf8f5 50%, #5c4d3d 50%);
-    }
-
-    .color-tool-btn.active .bg-icon {
-      border-color: #fff;
-      background: linear-gradient(135deg, #fff 50%, #5c4d3d 50%);
-    }
-
-    .text-icon {
+    .font-preview {
+      font-size: 16px;
       font-weight: 600;
-      font-family: 'Courier Prime', monospace;
+    }
+
+    .color-indicator {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      background: #ffffff;
+    }
+
+    .highlight-icon {
+      font-size: 16px;
+      font-weight: 700;
+      padding: 2px 4px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .toolbar-btn.highlight-off .highlight-icon {
+      background: transparent;
+      text-decoration: underline;
+    }
+
+    .eyedropper-icon {
+      font-size: 18px;
+    }
+
+    /* Legacy color toolbar for backward compatibility */
+    .color-toolbar {
+      display: none;
+    }
+
+    /* Font Picker Dropdown */
+    .font-picker {
+      position: absolute;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      z-index: 46;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      min-width: 160px;
+    }
+
+    .font-picker.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .font-option {
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .font-option:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .font-option.selected {
+      background: rgba(92, 77, 61, 0.15);
+    }
+
+    .font-option-preview {
+      font-size: 18px;
+      width: 28px;
+      text-align: center;
+    }
+
+    .font-option-name {
+      font-size: 13px;
+      color: #5c4d3d;
     }
 
     /* Color Picker Dropdown */
     .color-picker {
       position: absolute;
-      top: 60px;
-      right: 16px;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
       background: rgba(255, 255, 255, 0.95);
       border-radius: 12px;
       padding: 14px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      z-index: 26;
+      z-index: 46;
       opacity: 0;
       pointer-events: none;
-      transform: translateY(-10px);
       transition: all 0.2s ease;
       min-width: 180px;
     }
@@ -823,7 +905,7 @@
     .color-picker.visible {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(0);
+      transform: translateX(-50%) translateY(0);
     }
 
     .color-picker-section {
@@ -948,9 +1030,13 @@
       cursor: move;
     }
 
+    .edit-text-box.no-bg {
+      background: transparent !important;
+    }
+
     .edit-text-box-input {
-      font-family: 'Courier Prime', 'Courier New', Courier, monospace;
-      font-size: 16px;
+      font-family: var(--text-box-font, 'Courier Prime', monospace);
+      font-size: var(--text-box-font-size, 16px);
       line-height: 1.4;
       letter-spacing: 0.5px;
       border: none;
@@ -960,7 +1046,7 @@
       resize: none;
       overflow: hidden;
       display: block;
-      caret-color: #5c4d3d;
+      caret-color: #d4c4a8;
       padding: 0;
       margin: 0;
       white-space: pre-wrap;
@@ -972,8 +1058,8 @@
     }
 
     .edit-text-box-display {
-      font-family: 'Courier Prime', 'Courier New', Courier, monospace;
-      font-size: 16px;
+      font-family: var(--text-box-font, 'Courier Prime', monospace);
+      font-size: var(--text-box-font-size, 16px);
       line-height: 1.4;
       letter-spacing: 0.5px;
       white-space: pre-wrap;
@@ -1479,21 +1565,47 @@
       <div class="edit-view-container" id="edit-view-container">
         <div class="edit-cover-bg" id="edit-cover-bg"></div>
 
-        <!-- Color picker toolbar (top right) -->
-        <div id="color-toolbar" class="color-toolbar">
-          <button class="color-tool-btn" id="bg-color-btn" onclick="toggleColorPicker('bg')" title="Background color">
-            <span class="color-tool-icon bg-icon"></span>
+        <!-- Stories-style toolbar (top center) -->
+        <div id="stories-toolbar" class="stories-toolbar">
+          <button class="toolbar-btn" id="font-style-btn" onclick="toggleFontPicker()" title="Change font">
+            <span class="font-preview">Aa</span>
           </button>
-          <button class="color-tool-btn" id="text-color-btn" onclick="toggleColorPicker('text')" title="Text color">
-            <span class="color-tool-icon text-icon">A</span>
+          <button class="toolbar-btn" id="text-color-btn" onclick="toggleColorPicker('text')" title="Text color">
+            <span class="color-indicator" id="text-color-indicator"></span>
           </button>
-          <button class="color-tool-btn" id="eyedropper-btn" onclick="toggleEyedropper()" title="Pick color from cover">
-            <span class="color-tool-icon eyedropper-icon">◉</span>
+          <button class="toolbar-btn" id="bg-color-btn" onclick="toggleColorPicker('bg')" title="Background color">
+            <span class="highlight-icon">A</span>
           </button>
+          <button class="toolbar-btn" id="eyedropper-btn" onclick="toggleEyedropper()" title="Pick color from cover">
+            <span class="eyedropper-icon">&#9673;</span>
+          </button>
+          <button class="toolbar-btn done-btn" id="done-btn" onclick="dismissKeyboard()">Done</button>
+        </div>
+        <!-- Hidden legacy toolbar for compatibility -->
+        <div id="color-toolbar" class="color-toolbar" style="display:none;"></div>
+
+        <!-- Font picker dropdown -->
+        <div id="font-picker" class="font-picker">
+          <div class="font-option" data-index="0" onclick="selectFontStyle(0)">
+            <span class="font-option-preview" style="font-family: 'Courier Prime', monospace;">Aa</span>
+            <span class="font-option-name">Classic</span>
+          </div>
+          <div class="font-option" data-index="1" onclick="selectFontStyle(1)">
+            <span class="font-option-preview" style="font-family: 'Helvetica Neue', Arial, sans-serif;">Aa</span>
+            <span class="font-option-name">Modern</span>
+          </div>
+          <div class="font-option" data-index="2" onclick="selectFontStyle(2)">
+            <span class="font-option-preview" style="font-family: 'Georgia', serif;">Aa</span>
+            <span class="font-option-name">Elegant</span>
+          </div>
         </div>
 
         <!-- Color palette dropdown -->
         <div id="color-picker" class="color-picker">
+          <div id="extracted-colors-section" class="color-picker-section" style="display: none;">
+            <div class="color-picker-label">From cover</div>
+            <div id="extracted-colors" class="color-swatches"></div>
+          </div>
           <div class="color-picker-section">
             <div id="palette-colors" class="color-swatches"></div>
           </div>
@@ -1595,7 +1707,7 @@
     let overlayVisible = false;
 
     // Edit View state
-    let editTextBoxes = []; // Array of {id, text, x, y, color, textColor}
+    let editTextBoxes = []; // Array of {id, text, x, y, color, textColor, fontStyle, fontSize}
     let currentTextBoxId = null;
     let textBoxX = 0;
     let textBoxY = 0;
@@ -1605,16 +1717,32 @@
     let dragStartY = 0;
     let textBoxStartX = 0;
     let textBoxStartY = 0;
-    let longPressTimer = null;
+    let dragStartDistance = 0; // For distinguishing tap from drag
+    let longPressTimer = null; // For active text box dragging
     let coverWrapRect = null;
+
+    // Font style constants
+    const FONT_STYLES = [
+      { name: 'Classic', family: "'Courier Prime', monospace" },
+      { name: 'Modern', family: "'Helvetica Neue', Arial, sans-serif" },
+      { name: 'Elegant', family: "'Georgia', serif" }
+    ];
+    const DEFAULT_FONT_SIZE = 16;
+    const MIN_FONT_SIZE = 12;
+    const MAX_FONT_SIZE = 48;
+
+    // Pinch-to-resize state
+    let isPinching = false;
+    let pinchStartDistance = 0;
+    let pinchStartFontSize = DEFAULT_FONT_SIZE;
+    let currentFontStyleIndex = 0;
+    let currentFontSize = DEFAULT_FONT_SIZE;
 
     // Color picker state
     let colorPickerMode = null; // 'bg' or 'text'
     let extractedColors = [];
     let eyedropperActive = false;
-    let eyedropperMode = 'bg'; // 'bg' or 'text'
-    let eyedropperCanvas = null;
-    let eyedropperCtx = null;
+    let eyedropperMode = 'text'; // 'bg' or 'text' - default to text
     const appPalette = [
       '#ffffff', '#f5f5f5', '#faf8f5', '#f5ebe0',
       '#d4cec4', '#b8a99a', '#8b7355', '#5c4d3d',
@@ -1829,13 +1957,22 @@
         const textEl = document.createElement('div');
         textEl.className = 'book-view-text';
         const bgColor = tb.color || '#ffffff';
-        const textColor = tb.textColor || (isLightColorSimple(bgColor) ? '#1a1a1a' : '#ffffff');
+        const hasBg = bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)';
+        const textColor = tb.textColor || (hasBg && isLightColorSimple(bgColor) ? '#1a1a1a' : '#ffffff');
+
+        // Apply font style and size with backward compatibility
+        const fontStyleIndex = tb.fontStyle !== undefined ? tb.fontStyle : 0;
+        const fontSize = tb.fontSize || 16;
+        const fontFamily = fontStyleIndex < FONT_STYLES.length ? FONT_STYLES[fontStyleIndex].family : FONT_STYLES[0].family;
+
         textEl.style.display = 'block';
         textEl.textContent = tb.text;
         textEl.style.left = tb.x + 'px';
         textEl.style.top = tb.y + 'px';
-        textEl.style.backgroundColor = bgColor;
+        textEl.style.backgroundColor = hasBg ? bgColor : 'transparent';
         textEl.style.color = textColor;
+        textEl.style.fontFamily = fontFamily;
+        textEl.style.fontSize = fontSize + 'px';
         textContainer.appendChild(textEl);
       });
 
@@ -2227,13 +2364,22 @@
         const textEl = document.createElement('div');
         textEl.className = 'book-view-text';
         const bgColor = tb.color || '#ffffff';
-        const textColor = tb.textColor || (isLightColorForCube(bgColor) ? '#1a1a1a' : '#ffffff');
+        const hasBg = bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)';
+        const textColor = tb.textColor || (hasBg && isLightColorForCube(bgColor) ? '#1a1a1a' : '#ffffff');
+
+        // Apply font style and size with backward compatibility
+        const fontStyleIndex = tb.fontStyle !== undefined ? tb.fontStyle : 0;
+        const fontSize = tb.fontSize || 16;
+        const fontFamily = fontStyleIndex < FONT_STYLES.length ? FONT_STYLES[fontStyleIndex].family : FONT_STYLES[0].family;
+
         textEl.style.cssText = `
           display: block;
           left: ${tb.x}px;
           top: ${tb.y}px;
-          background-color: ${bgColor};
+          background-color: ${hasBg ? bgColor : 'transparent'};
           color: ${textColor};
+          font-family: ${fontFamily};
+          font-size: ${fontSize}px;
         `;
         textEl.textContent = tb.text;
         coverWrap.appendChild(textEl);
@@ -2503,15 +2649,17 @@
         handleSave();
       }, { passive: false });
 
-      // Color toolbar button touch handlers for mobile
-      const bgColorBtn = document.getElementById('bg-color-btn');
+      // Stories toolbar button touch handlers for mobile
+      const fontStyleBtn = document.getElementById('font-style-btn');
       const textColorBtn = document.getElementById('text-color-btn');
+      const bgColorBtn = document.getElementById('bg-color-btn');
       const eyedropperBtn = document.getElementById('eyedropper-btn');
+      const doneBtn = document.getElementById('done-btn');
 
-      bgColorBtn.addEventListener('touchend', (e) => {
+      fontStyleBtn.addEventListener('touchend', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        toggleColorPicker('bg');
+        toggleFontPicker();
       }, { passive: false });
 
       textColorBtn.addEventListener('touchend', (e) => {
@@ -2520,10 +2668,22 @@
         toggleColorPicker('text');
       }, { passive: false });
 
+      bgColorBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleColorPicker('bg');
+      }, { passive: false });
+
       eyedropperBtn.addEventListener('touchend', (e) => {
         e.preventDefault();
         e.stopPropagation();
         toggleEyedropper();
+      }, { passive: false });
+
+      doneBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dismissKeyboard();
       }, { passive: false });
 
       // Color swatch touch handler (event delegation)
@@ -2537,6 +2697,18 @@
           // Convert rgb to hex if needed
           const hexColor = color.startsWith('#') ? color : rgbToHex(color);
           applyColor(hexColor);
+        }
+      }, { passive: false });
+
+      // Font option touch handler (event delegation)
+      const fontPicker = document.getElementById('font-picker');
+      fontPicker.addEventListener('touchend', (e) => {
+        const option = e.target.closest('.font-option');
+        if (option) {
+          e.preventDefault();
+          e.stopPropagation();
+          const index = parseInt(option.dataset.index);
+          selectFontStyle(index);
         }
       }, { passive: false });
 
@@ -2628,10 +2800,24 @@
         el.dataset.id = tb.id;
         el.style.left = tb.x + 'px';
         el.style.top = tb.y + 'px';
-        el.style.backgroundColor = tb.color || '#ffffff';
-        const textColor = tb.textColor || (isLightColor(tb.color || '#ffffff') ? '#1a1a1a' : '#ffffff');
+
+        // Apply background color (support transparent)
+        const bgColor = tb.color || '#ffffff';
+        const hasBg = bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)';
+        el.style.backgroundColor = bgColor;
+        if (!hasBg) el.classList.add('no-bg');
+
+        const textColor = tb.textColor || (hasBg && isLightColor(bgColor) ? '#1a1a1a' : '#ffffff');
         el.style.color = textColor;
-        el.innerHTML = `<div class="edit-text-box-display" style="display:block;">${tb.text}</div>`;
+
+        // Apply font style and size with backward compatibility
+        const fontStyleIndex = tb.fontStyle !== undefined ? tb.fontStyle : 0;
+        const fontSize = tb.fontSize || DEFAULT_FONT_SIZE;
+        const fontFamily = FONT_STYLES[fontStyleIndex] ? FONT_STYLES[fontStyleIndex].family : FONT_STYLES[0].family;
+        el.style.setProperty('--text-box-font', fontFamily);
+        el.style.setProperty('--text-box-font-size', fontSize + 'px');
+
+        el.innerHTML = `<div class="edit-text-box-display" style="display:block;font-family:${fontFamily};font-size:${fontSize}px;">${tb.text}</div>`;
         el.addEventListener('click', (e) => handleStaticTextBoxClick(e, tb.id));
         el.addEventListener('touchstart', (e) => handleStaticTextBoxTouchStart(e, tb.id), { passive: false });
         el.addEventListener('touchmove', handleStaticTextBoxTouchMove, { passive: false });
@@ -2652,10 +2838,21 @@
       if (currentView !== 'edit') return;
       e.stopPropagation();
 
-      const touch = e.touches[0];
       const tb = editTextBoxes.find(t => t.id === id);
       if (!tb) return;
 
+      // Check for pinch gesture (two fingers)
+      if (e.touches.length === 2) {
+        isPinching = true;
+        isDragging = false;
+        pinchStartDistance = getPinchDistance(e.touches);
+        pinchStartFontSize = tb.fontSize || DEFAULT_FONT_SIZE;
+        currentTextBoxId = id;
+        e.preventDefault();
+        return;
+      }
+
+      const touch = e.touches[0];
       currentTextBoxId = id;
       textBoxX = tb.x;
       textBoxY = tb.y;
@@ -2663,32 +2860,56 @@
       textBoxStartY = tb.y;
       dragStartX = touch.clientX;
       dragStartY = touch.clientY;
+      dragStartDistance = 0;
+      isDragging = false;
       coverWrapRect = document.getElementById('edit-cover-wrap').getBoundingClientRect();
-
-      longPressTimer = setTimeout(() => {
-        isDragging = true;
-        e.target.closest('.edit-text-static').style.opacity = '0.8';
-        document.getElementById('edit-trash').classList.add('visible');
-      }, 150);
     }
 
     function handleStaticTextBoxTouchMove(e) {
       if (currentView !== 'edit') return;
 
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
+      // Handle pinch-to-resize
+      if (isPinching && e.touches.length === 2) {
+        e.preventDefault();
+        const currentDistance = getPinchDistance(e.touches);
+        const scale = currentDistance / pinchStartDistance;
+        let newFontSize = Math.round(pinchStartFontSize * scale);
+        newFontSize = Math.max(MIN_FONT_SIZE, Math.min(MAX_FONT_SIZE, newFontSize));
+
+        // Update the static element's font size
+        const el = e.target.closest('.edit-text-static');
+        if (el) {
+          el.style.setProperty('--text-box-font-size', newFontSize + 'px');
+          const displayEl = el.querySelector('.edit-text-box-display');
+          if (displayEl) {
+            displayEl.style.fontSize = newFontSize + 'px';
+          }
+        }
+
+        // Update in array
+        const tb = editTextBoxes.find(t => t.id === currentTextBoxId);
+        if (tb) {
+          tb.fontSize = newFontSize;
+        }
+        currentFontSize = newFontSize;
+        return;
+      }
+
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStartX;
+      const deltaY = touch.clientY - dragStartY;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      // Start dragging only after movement threshold (10px)
+      if (!isDragging && distance > 10) {
         isDragging = true;
-        e.target.closest('.edit-text-static').style.opacity = '0.8';
+        const el = e.target.closest('.edit-text-static');
+        if (el) el.style.opacity = '0.8';
         document.getElementById('edit-trash').classList.add('visible');
       }
 
       if (!isDragging) return;
       e.preventDefault();
-
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - dragStartX;
-      const deltaY = touch.clientY - dragStartY;
 
       let newX = textBoxStartX + deltaX;
       let newY = textBoxStartY + deltaY;
@@ -2716,12 +2937,8 @@
 
     function handleStaticTextBoxTouchEnd(e) {
       const wasDragging = isDragging;
+      const wasPinching = isPinching;
       const id = currentTextBoxId;
-
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
 
       const trash = document.getElementById('edit-trash');
       const el = e.target.closest('.edit-text-static');
@@ -2736,13 +2953,21 @@
 
       trash.classList.remove('visible', 'active');
       isDragging = false;
+      isPinching = false;
       coverWrapRect = null;
 
-      // Handle tap (non-drag) - activate the text box
-      if (!wasDragging && id !== null) {
+      // Handle tap (no drag, no pinch) - activate the text box
+      if (!wasDragging && !wasPinching && id !== null) {
         e.preventDefault();
         activateTextBox(id);
       }
+    }
+
+    // Helper function to calculate distance between two touch points
+    function getPinchDistance(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
     }
 
     function handleStaticTextBoxMouseDown(e, id) {
@@ -2796,11 +3021,20 @@
       textBox.style.top = tb.y + 'px';
 
       // Apply colors
-      textBox.style.backgroundColor = tb.color || '#ffffff';
-      const textColor = tb.textColor || (isLightColor(tb.color || '#ffffff') ? '#1a1a1a' : '#ffffff');
+      const bgColor = tb.color || '#ffffff';
+      const hasBg = bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)';
+      textBox.style.backgroundColor = bgColor;
+      textBox.classList.toggle('no-bg', !hasBg);
+      const textColor = tb.textColor || (isLightColor(bgColor) ? '#1a1a1a' : '#ffffff');
       textBox.style.color = textColor;
 
-      // Show color toolbar
+      // Apply font style and size (with backward compatibility defaults)
+      currentFontStyleIndex = tb.fontStyle !== undefined ? tb.fontStyle : 0;
+      currentFontSize = tb.fontSize || DEFAULT_FONT_SIZE;
+      textBox.style.setProperty('--text-box-font', FONT_STYLES[currentFontStyleIndex].family);
+      textBox.style.setProperty('--text-box-font-size', currentFontSize + 'px');
+
+      // Show toolbar
       showColorToolbar();
 
       showEditDisplayMode();
@@ -2809,9 +3043,12 @@
     function handleEditCoverTap(e) {
       if (currentView !== 'edit') return;
 
-      // Ignore if tapping on text box or save button
+      // Ignore if tapping on text box, save button, or toolbar/pickers
       if (e.target.closest('.edit-text-box')) return;
       if (e.target.closest('.edit-save-btn')) return;
+      if (e.target.closest('.stories-toolbar')) return;
+      if (e.target.closest('.color-picker')) return;
+      if (e.target.closest('.font-picker')) return;
 
       const textBox = document.getElementById('edit-text-box');
       const textInput = document.getElementById('edit-text-box-input');
@@ -2833,12 +3070,12 @@
         hideColorToolbar();
       }
 
-      // Create new text box at tap position
+      // Create new text box at exact tap position (no offset)
       const rect = coverWrap.getBoundingClientRect();
-      textBoxX = e.clientX - rect.left - 25;
-      textBoxY = e.clientY - rect.top - 12;
+      textBoxX = e.clientX - rect.left;
+      textBoxY = e.clientY - rect.top;
 
-      // Constrain position
+      // Constrain position to keep text box visible
       textBoxX = Math.max(10, Math.min(textBoxX, rect.width - 60));
       textBoxY = Math.max(60, Math.min(textBoxY, rect.height - 100));
 
@@ -2846,21 +3083,28 @@
       const maxId = editTextBoxes.reduce((max, tb) => Math.max(max, tb.id), -1);
       currentTextBoxId = maxId + 1;
 
+      // Reset font style and size for new text box
+      currentFontStyleIndex = 0;
+      currentFontSize = DEFAULT_FONT_SIZE;
+
       textBox.style.left = textBoxX + 'px';
       textBox.style.top = textBoxY + 'px';
       textBox.style.display = 'block';
-      textBox.style.backgroundColor = '#ffffff';
-      textBox.style.color = '#1a1a1a';
+      textBox.style.backgroundColor = 'transparent';
+      textBox.style.color = '#000000';
+      textBox.classList.add('no-bg');
+      textBox.style.setProperty('--text-box-font', FONT_STYLES[currentFontStyleIndex].family);
+      textBox.style.setProperty('--text-box-font-size', currentFontSize + 'px');
 
       // Set small initial size for empty text box
       textInput.style.width = '2px';
-      textInput.style.height = '22px';
+      textInput.style.height = Math.round(currentFontSize * 1.4) + 'px';
       textInput.style.minWidth = '0';
 
-      // Show color toolbar
+      // Show toolbar immediately
       showColorToolbar();
 
-      // Enter edit mode
+      // Enter edit mode and focus immediately to show keyboard
       showEditInputMode();
       textInput.focus();
     }
@@ -2910,15 +3154,20 @@
       const textBox = document.getElementById('edit-text-box');
       const coverWrap = document.getElementById('edit-cover-wrap');
 
+      // Get current font style and size from CSS variables
+      const computedStyle = getComputedStyle(textBox);
+      const fontFamily = computedStyle.getPropertyValue('--text-box-font') || FONT_STYLES[0].family;
+      const fontSize = parseInt(computedStyle.getPropertyValue('--text-box-font-size')) || currentFontSize || DEFAULT_FONT_SIZE;
+
       // Calculate max width (container width minus margins and padding)
       const containerWidth = coverWrap.offsetWidth;
       const maxWidth = containerWidth - 20 - 28; // 10px margin each side, 28px padding
 
-      // Create a temporary span to measure text width
+      // Create a temporary span to measure text width with current font
       const measureSpan = document.createElement('span');
       measureSpan.style.cssText = `
-        font-family: 'Courier Prime', 'Courier New', Courier, monospace;
-        font-size: 16px;
+        font-family: ${fontFamily};
+        font-size: ${fontSize}px;
         letter-spacing: 0.5px;
         white-space: pre;
         visibility: hidden;
@@ -2935,8 +3184,8 @@
 
       textInput.style.width = newWidth + 'px';
 
-      // Only grow height for multiline, keep single line consistent
-      const lineHeight = 22;
+      // Calculate line height based on font size
+      const lineHeight = Math.round(fontSize * 1.4);
       const lines = Math.max(1, Math.ceil(textInput.scrollHeight / lineHeight));
       textInput.style.height = (lines * lineHeight) + 'px';
     }
@@ -2971,6 +3220,7 @@
         textInput.value = '';
         document.getElementById('edit-text-box-display').textContent = '';
         renderEditTextBoxes();
+        hideColorToolbar();
       } else {
         // No text, hide the box and remove from array if it existed
         if (currentTextBoxId !== null) {
@@ -2978,6 +3228,7 @@
         }
         textBox.style.display = 'none';
         currentTextBoxId = null;
+        hideColorToolbar();
       }
     }
 
@@ -2986,9 +3237,14 @@
       if (currentTextBoxId === null) return;
 
       const textInput = document.getElementById('edit-text-box-input');
+      const textBox = document.getElementById('edit-text-box');
       const text = textInput.value.trim();
 
       if (!text) return;
+
+      // Get current colors from the active text box
+      const bgColor = textBox.style.backgroundColor || '#ffffff';
+      const textColor = textBox.style.color || null;
 
       const existingIndex = editTextBoxes.findIndex(tb => tb.id === currentTextBoxId);
 
@@ -2997,6 +3253,10 @@
         editTextBoxes[existingIndex].text = text;
         editTextBoxes[existingIndex].x = textBoxX;
         editTextBoxes[existingIndex].y = textBoxY;
+        editTextBoxes[existingIndex].color = bgColor;
+        editTextBoxes[existingIndex].textColor = textColor;
+        editTextBoxes[existingIndex].fontStyle = currentFontStyleIndex;
+        editTextBoxes[existingIndex].fontSize = currentFontSize;
       } else {
         // Add new text box
         editTextBoxes.push({
@@ -3004,8 +3264,10 @@
           text: text,
           x: textBoxX,
           y: textBoxY,
-          color: '#ffffff',
-          textColor: null
+          color: bgColor,
+          textColor: textColor,
+          fontStyle: currentFontStyleIndex,
+          fontSize: currentFontSize
         });
       }
     }
@@ -3051,8 +3313,21 @@
     }
 
     function renderColorSwatches() {
+      const extractedSection = document.getElementById('extracted-colors-section');
+      const extractedContainer = document.getElementById('extracted-colors');
       const paletteContainer = document.getElementById('palette-colors');
 
+      // Show extracted colors from cover (if any)
+      if (extractedColors.length > 0) {
+        extractedSection.style.display = 'block';
+        extractedContainer.innerHTML = extractedColors.map(color =>
+          `<div class="color-swatch ${isLightColor(color) ? 'light' : ''}" style="background: ${color}" onclick="applyColor('${color}')"></div>`
+        ).join('');
+      } else {
+        extractedSection.style.display = 'none';
+      }
+
+      // Show standard palette
       paletteContainer.innerHTML = appPalette.map(color =>
         `<div class="color-swatch ${isLightColor(color) ? 'light' : ''}" style="background: ${color}" onclick="applyColor('${color}')"></div>`
       ).join('');
@@ -3078,32 +3353,65 @@
 
     function toggleColorPicker(mode) {
       const picker = document.getElementById('color-picker');
-      const bgBtn = document.getElementById('bg-color-btn');
       const textBtn = document.getElementById('text-color-btn');
+      const bgBtn = document.getElementById('bg-color-btn');
 
-      // If eyedropper is active, switch its mode instead
-      if (eyedropperActive) {
-        eyedropperMode = mode;
-        bgBtn.classList.toggle('active', mode === 'bg');
-        textBtn.classList.toggle('active', mode === 'text');
-        return;
-      }
+      // Hide font picker if open
+      hideFontPicker();
 
       if (colorPickerMode === mode) {
         hideColorPicker();
       } else {
         colorPickerMode = mode;
         picker.classList.add('visible');
-        bgBtn.classList.toggle('active', mode === 'bg');
         textBtn.classList.toggle('active', mode === 'text');
+        bgBtn.classList.toggle('active', mode === 'bg');
       }
     }
 
     function hideColorPicker() {
       colorPickerMode = null;
       document.getElementById('color-picker').classList.remove('visible');
-      document.getElementById('bg-color-btn').classList.remove('active');
-      document.getElementById('text-color-btn').classList.remove('active');
+      const textBtn = document.getElementById('text-color-btn');
+      const bgBtn = document.getElementById('bg-color-btn');
+      if (textBtn) textBtn.classList.remove('active');
+      if (bgBtn) bgBtn.classList.remove('active');
+    }
+
+    function toggleFontPicker() {
+      const picker = document.getElementById('font-picker');
+      const fontBtn = document.getElementById('font-style-btn');
+
+      // Hide color picker if open
+      hideColorPicker();
+
+      if (picker.classList.contains('visible')) {
+        hideFontPicker();
+      } else {
+        picker.classList.add('visible');
+        fontBtn.classList.add('active');
+        updateFontPickerSelection();
+      }
+    }
+
+    function hideFontPicker() {
+      document.getElementById('font-picker').classList.remove('visible');
+      document.getElementById('font-style-btn').classList.remove('active');
+    }
+
+    function updateFontPickerSelection() {
+      const options = document.querySelectorAll('.font-option');
+      options.forEach((opt, index) => {
+        opt.classList.toggle('selected', index === currentFontStyleIndex);
+      });
+    }
+
+    function selectFontStyle(index) {
+      currentFontStyleIndex = index;
+      applyCurrentFontStyle();
+      updateToolbarState();
+      updateFontPickerSelection();
+      hideFontPicker();
     }
 
     function applyColor(color) {
@@ -3114,6 +3422,9 @@
 
       const tb = editTextBoxes.find(t => t.id === currentTextBoxId);
       if (!tb) return;
+
+      // Also set eyedropperMode so eyedropper knows what to apply
+      eyedropperMode = colorPickerMode;
 
       if (colorPickerMode === 'bg') {
         tb.color = color;
@@ -3126,6 +3437,7 @@
       if (textBox.style.display !== 'none') {
         if (colorPickerMode === 'bg') {
           textBox.style.backgroundColor = color;
+          textBox.classList.remove('no-bg');
           // Auto-set text color if not manually set
           if (!tb.textColor) {
             const autoTextColor = isLightColor(color) ? '#1a1a1a' : '#ffffff';
@@ -3141,6 +3453,7 @@
       if (staticEl) {
         if (colorPickerMode === 'bg') {
           staticEl.style.backgroundColor = color;
+          staticEl.classList.remove('no-bg');
           if (!tb.textColor) {
             staticEl.style.color = isLightColor(color) ? '#1a1a1a' : '#ffffff';
           }
@@ -3150,122 +3463,106 @@
       }
 
       hideColorPicker();
+      updateToolbarState();
     }
 
     function showColorToolbar() {
-      document.getElementById('color-toolbar').classList.add('visible');
+      document.getElementById('stories-toolbar').classList.add('visible');
+      updateToolbarState();
     }
 
     function hideColorToolbar() {
-      document.getElementById('color-toolbar').classList.remove('visible');
+      document.getElementById('stories-toolbar').classList.remove('visible');
       hideColorPicker();
+      hideFontPicker();
       hideEyedropper();
+    }
+
+    function updateToolbarState() {
+      // Update text color indicator
+      const textBox = document.getElementById('edit-text-box');
+      const textColorIndicator = document.getElementById('text-color-indicator');
+      if (textColorIndicator) {
+        const textColor = textBox.style.color || '#1a1a1a';
+        textColorIndicator.style.background = textColor;
+      }
+
+      // Update font preview based on current style
+      const fontPreview = document.querySelector('#font-style-btn .font-preview');
+      if (fontPreview) {
+        fontPreview.style.fontFamily = FONT_STYLES[currentFontStyleIndex].family;
+      }
+
+      // Update background color indicator
+      const bgBtn = document.getElementById('bg-color-btn');
+      const highlightIcon = bgBtn.querySelector('.highlight-icon');
+      if (highlightIcon) {
+        const bgColor = textBox.style.backgroundColor;
+        const hasBg = bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)';
+        if (hasBg) {
+          highlightIcon.style.background = bgColor;
+          // Set text color for visibility
+          highlightIcon.style.color = isLightColor(rgbToHex(bgColor)) ? '#1a1a1a' : '#ffffff';
+        } else {
+          highlightIcon.style.background = 'rgba(255, 255, 255, 0.3)';
+          highlightIcon.style.color = '#fff';
+        }
+      }
+    }
+
+    function applyCurrentFontStyle() {
+      const textBox = document.getElementById('edit-text-box');
+      const fontFamily = FONT_STYLES[currentFontStyleIndex].family;
+      textBox.style.setProperty('--text-box-font', fontFamily);
+
+      // Update the current text box in array if it exists
+      if (currentTextBoxId !== null) {
+        const tb = editTextBoxes.find(t => t.id === currentTextBoxId);
+        if (tb) {
+          tb.fontStyle = currentFontStyleIndex;
+        }
+      }
+    }
+
+    // Done button - dismiss keyboard
+    function dismissKeyboard() {
+      const textInput = document.getElementById('edit-text-box-input');
+      textInput.blur();
     }
 
     // Eyedropper functions
     function toggleEyedropper() {
-      if (eyedropperActive) {
-        hideEyedropper();
+      // Use native EyeDropper API if available (desktop Chrome/Edge)
+      if ('EyeDropper' in window) {
+        useNativeEyedropper();
       } else {
-        showEyedropper();
+        // Mobile fallback: show color picker with extracted cover colors
+        // Use the current eyedropperMode or default to 'text'
+        toggleColorPicker(eyedropperMode || 'text');
       }
     }
 
-    function showEyedropper() {
-      // Capture the current color picker mode before hiding it
+    async function useNativeEyedropper() {
+      // Use the current colorPickerMode if a picker is open, otherwise use last eyedropperMode
       if (colorPickerMode) {
         eyedropperMode = colorPickerMode;
       }
+      // Default to 'text' if no mode has been set
+      if (!eyedropperMode) {
+        eyedropperMode = 'text';
+      }
       hideColorPicker();
-      eyedropperActive = true;
+      hideFontPicker();
 
-      const overlay = document.getElementById('eyedropper-overlay');
       const eyedropperBtn = document.getElementById('eyedropper-btn');
-      const bgBtn = document.getElementById('bg-color-btn');
-      const textBtn = document.getElementById('text-color-btn');
-
-      overlay.classList.add('active');
       eyedropperBtn.classList.add('active');
 
-      // Highlight current mode button
-      bgBtn.classList.toggle('active', eyedropperMode === 'bg');
-      textBtn.classList.toggle('active', eyedropperMode === 'text');
-
-      // Create canvas from cover image for color picking
-      const img = document.getElementById('edit-cover');
-      eyedropperCanvas = document.createElement('canvas');
-      eyedropperCtx = eyedropperCanvas.getContext('2d');
-      eyedropperCanvas.width = img.naturalWidth || img.width;
-      eyedropperCanvas.height = img.naturalHeight || img.height;
-
       try {
-        eyedropperCtx.drawImage(img, 0, 0);
-      } catch (e) {
-        console.log('Could not draw image to canvas');
-      }
+        const eyeDropper = new EyeDropper();
+        const result = await eyeDropper.open();
+        const color = result.sRGBHex;
 
-      // Add click handler to overlay
-      overlay.addEventListener('click', handleEyedropperClick);
-      overlay.addEventListener('touchend', handleEyedropperTouch);
-    }
-
-    function hideEyedropper() {
-      eyedropperActive = false;
-
-      const overlay = document.getElementById('eyedropper-overlay');
-      const eyedropperBtn = document.getElementById('eyedropper-btn');
-      const bgBtn = document.getElementById('bg-color-btn');
-      const textBtn = document.getElementById('text-color-btn');
-
-      overlay.classList.remove('active');
-      eyedropperBtn.classList.remove('active');
-      bgBtn.classList.remove('active');
-      textBtn.classList.remove('active');
-
-      overlay.removeEventListener('click', handleEyedropperClick);
-      overlay.removeEventListener('touchend', handleEyedropperTouch);
-
-      eyedropperCanvas = null;
-      eyedropperCtx = null;
-    }
-
-    function handleEyedropperClick(e) {
-      pickColorAt(e.clientX, e.clientY);
-    }
-
-    function handleEyedropperTouch(e) {
-      if (e.changedTouches && e.changedTouches.length > 0) {
-        const touch = e.changedTouches[0];
-        pickColorAt(touch.clientX, touch.clientY);
-      }
-    }
-
-    function pickColorAt(clientX, clientY) {
-      if (!eyedropperCanvas || !eyedropperCtx) {
-        return;
-      }
-
-      const img = document.getElementById('edit-cover');
-      const imgRect = img.getBoundingClientRect();
-
-      // Check if click is on the cover image - if outside, close eyedropper
-      if (clientX < imgRect.left || clientX > imgRect.right ||
-          clientY < imgRect.top || clientY > imgRect.bottom) {
-        hideEyedropper();
-        return;
-      }
-
-      // Calculate position on the canvas
-      const scaleX = eyedropperCanvas.width / imgRect.width;
-      const scaleY = eyedropperCanvas.height / imgRect.height;
-      const canvasX = Math.floor((clientX - imgRect.left) * scaleX);
-      const canvasY = Math.floor((clientY - imgRect.top) * scaleY);
-
-      try {
-        const pixel = eyedropperCtx.getImageData(canvasX, canvasY, 1, 1).data;
-        const color = rgbToHex(pixel[0], pixel[1], pixel[2]);
-
-        // Apply color to current text box based on eyedropper mode
+        // Apply color to current text box
         if (currentTextBoxId !== null) {
           const tb = editTextBoxes.find(t => t.id === currentTextBoxId);
           if (tb) {
@@ -3274,22 +3571,22 @@
 
             if (eyedropperMode === 'bg') {
               tb.color = color;
-
               if (textBox.style.display !== 'none') {
                 textBox.style.backgroundColor = color;
+                textBox.classList.remove('no-bg');
                 if (!tb.textColor) {
                   textBox.style.color = isLightColor(color) ? '#1a1a1a' : '#ffffff';
                 }
               }
               if (staticEl) {
                 staticEl.style.backgroundColor = color;
+                staticEl.classList.remove('no-bg');
                 if (!tb.textColor) {
                   staticEl.style.color = isLightColor(color) ? '#1a1a1a' : '#ffffff';
                 }
               }
             } else if (eyedropperMode === 'text') {
               tb.textColor = color;
-
               if (textBox.style.display !== 'none') {
                 textBox.style.color = color;
               }
@@ -3297,12 +3594,27 @@
                 staticEl.style.color = color;
               }
             }
+            updateToolbarState();
           }
         }
       } catch (e) {
-        console.log('Could not pick color:', e);
+        // User cancelled or error occurred
+        console.log('Eyedropper cancelled or failed:', e);
       }
-      // Keep eyedropper active - user can click again or tap outside cover to close
+
+      eyedropperBtn.classList.remove('active');
+    }
+
+    function showEyedropper() {
+      // Legacy function - now redirects to native eyedropper
+      toggleEyedropper();
+    }
+
+    function hideEyedropper() {
+      // Native EyeDropper API is modal, no cleanup needed
+      eyedropperActive = false;
+      const eyedropperBtn = document.getElementById('eyedropper-btn');
+      if (eyedropperBtn) eyedropperBtn.classList.remove('active');
     }
 
     // Text box dragging (touch)
@@ -3537,7 +3849,9 @@
         x: Math.round(tb.x),
         y: Math.round(tb.y),
         color: tb.color || '#ffffff',
-        textColor: tb.textColor || null
+        textColor: tb.textColor || null,
+        fontStyle: tb.fontStyle !== undefined ? tb.fontStyle : 0,
+        fontSize: tb.fontSize || DEFAULT_FONT_SIZE
       }));
 
       // For backward compatibility, also set reflection to first text box
