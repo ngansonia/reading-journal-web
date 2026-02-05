@@ -2670,12 +2670,12 @@
       const indicator = document.getElementById('year-indicator');
       let hideTimeout = null;
 
-      // Listen on timeline element (not window) since timeline has overflow-y: auto
-      timeline.addEventListener('scroll', () => {
+      // Listen on body element since body has overflow:auto and html has overflow:hidden
+      document.body.addEventListener('scroll', () => {
         if (currentView !== 'home') return;
 
         const sections = timeline.querySelectorAll('.year-section');
-        const scrollTop = timeline.scrollTop;
+        const scrollTop = document.body.scrollTop;
 
         // Don't show if at the very top
         if (scrollTop < 100) {
