@@ -1691,6 +1691,84 @@
         yearRead: '2023',
         summary: 'Set in Tokyo during the late 1960s, this nostalgic story follows Toru Watanabe.',
       },
+      {
+        id: 'sample_4',
+        title: '1984',
+        author: 'George Orwell',
+        coverUrl: 'https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg',
+        reflection: 'Big Brother is watching',
+        textBoxColor: '#ffffff',
+        textBoxX: 20,
+        textBoxY: 300,
+        dateAdded: '2023-02-10',
+        yearRead: '2023',
+        summary: 'A dystopian novel about totalitarianism and surveillance.',
+      },
+      {
+        id: 'sample_5',
+        title: 'Pride and Prejudice',
+        author: 'Jane Austen',
+        coverUrl: 'https://covers.openlibrary.org/b/isbn/9780141439518-L.jpg',
+        reflection: 'A truth universally acknowledged',
+        textBoxColor: '#f5ebe0',
+        textBoxX: 20,
+        textBoxY: 280,
+        dateAdded: '2022-11-15',
+        yearRead: '2022',
+        summary: 'A romantic novel about Elizabeth Bennet and Mr. Darcy.',
+      },
+      {
+        id: 'sample_6',
+        title: 'The Catcher in the Rye',
+        author: 'J.D. Salinger',
+        coverUrl: 'https://covers.openlibrary.org/b/isbn/9780316769488-L.jpg',
+        reflection: 'Holden Caulfield speaks to the lost teenager in all of us',
+        textBoxColor: '#1a1a1a',
+        textBoxX: 20,
+        textBoxY: 320,
+        dateAdded: '2022-06-20',
+        yearRead: '2022',
+        summary: 'A story of teenage alienation and angst.',
+      },
+      {
+        id: 'sample_7',
+        title: 'To Kill a Mockingbird',
+        author: 'Harper Lee',
+        coverUrl: 'https://covers.openlibrary.org/b/isbn/9780061120084-L.jpg',
+        reflection: 'You never really understand a person until you climb into their skin',
+        textBoxColor: '#ffffff',
+        textBoxX: 20,
+        textBoxY: 300,
+        dateAdded: '2021-08-05',
+        yearRead: '2021',
+        summary: 'A novel about racial injustice in the American South.',
+      },
+      {
+        id: 'sample_8',
+        title: 'The Alchemist',
+        author: 'Paulo Coelho',
+        coverUrl: 'https://covers.openlibrary.org/b/isbn/9780062315007-L.jpg',
+        reflection: 'When you want something, all the universe conspires to help you',
+        textBoxColor: '#f5ebe0',
+        textBoxX: 20,
+        textBoxY: 280,
+        dateAdded: '2021-03-12',
+        yearRead: '2021',
+        summary: 'A fable about following your dreams.',
+      },
+      {
+        id: 'sample_9',
+        title: 'Sapiens',
+        author: 'Yuval Noah Harari',
+        coverUrl: 'https://covers.openlibrary.org/b/isbn/9780062316097-L.jpg',
+        reflection: 'A brief history of humankind that changed my perspective',
+        textBoxColor: '#ffffff',
+        textBoxX: 20,
+        textBoxY: 300,
+        dateAdded: '2020-12-01',
+        yearRead: '2020',
+        summary: 'A narrative history of humanity from the Stone Age to the present.',
+      },
     ];
 
     // App state
@@ -2592,11 +2670,12 @@
       const indicator = document.getElementById('year-indicator');
       let hideTimeout = null;
 
-      window.addEventListener('scroll', () => {
+      // Listen on timeline element (not window) since timeline has overflow-y: auto
+      timeline.addEventListener('scroll', () => {
         if (currentView !== 'home') return;
 
         const sections = timeline.querySelectorAll('.year-section');
-        const scrollTop = window.scrollY;
+        const scrollTop = timeline.scrollTop;
 
         // Don't show if at the very top
         if (scrollTop < 100) {
