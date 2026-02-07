@@ -118,6 +118,16 @@
       border-bottom: 1px solid #ebe7e2;
     }
 
+    .sticky-header::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
+      height: env(safe-area-inset-top);
+      background: #faf8f5;
+    }
+
     .logo-container {
       display: flex;
       align-items: center;
@@ -739,7 +749,7 @@
     /* Stories-Style Toolbar */
     .stories-toolbar {
       position: absolute;
-      top: 16px;
+      top: calc(16px + env(safe-area-inset-top));
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -838,7 +848,7 @@
     /* Font Picker Dropdown */
     .font-picker {
       position: absolute;
-      top: 70px;
+      top: calc(70px + env(safe-area-inset-top));
       left: 50%;
       transform: translateX(-50%) translateY(-10px);
       background: rgba(255, 255, 255, 0.95);
@@ -890,7 +900,7 @@
     /* Color Picker Dropdown */
     .color-picker {
       position: absolute;
-      top: 70px;
+      top: calc(70px + env(safe-area-inset-top));
       left: 50%;
       transform: translateX(-50%) translateY(-10px);
       background: rgba(255, 255, 255, 0.95);
@@ -1226,6 +1236,13 @@
       background-position: center;
       filter: blur(20px) brightness(0.4);
       z-index: 1;
+      will-change: transform;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .book-view-bg.loaded {
+      opacity: 1;
     }
 
     .book-view-cover-wrap {
@@ -1247,6 +1264,12 @@
       width: auto;
       height: 100%;
       object-fit: contain;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .book-view-cover.loaded {
+      opacity: 1;
     }
 
     .book-view-text {
@@ -1304,7 +1327,7 @@
     /* More button (shown on second tap) */
     .book-view-more-btn {
       position: absolute;
-      top: 20px;
+      top: calc(20px + env(safe-area-inset-top));
       right: 20px;
       background: #5c4d3d;
       border: none;
@@ -1343,7 +1366,7 @@
     /* Action menu */
     .action-menu {
       position: absolute;
-      top: 64px;
+      top: calc(64px + env(safe-area-inset-top));
       right: 20px;
       background: #faf8f5;
       border-radius: 4px;
@@ -1541,7 +1564,7 @@
       <div class="book-view-container" id="book-view-container">
         <div class="book-view-bg" id="book-view-bg"></div>
         <div class="book-view-cover-wrap" id="book-view-cover-wrap">
-          <img id="book-view-cover" class="book-view-cover" src="" alt="">
+          <img id="book-view-cover" class="book-view-cover" src="" alt="" decoding="async">
         </div>
 
         <!-- More button (shown on second tap) -->
@@ -1569,19 +1592,19 @@
 
         <!-- Stories-style toolbar (top center) -->
         <div id="stories-toolbar" class="stories-toolbar">
-          <button class="toolbar-btn" id="font-style-btn" onclick="toggleFontPicker()" title="Change font">
+          <button class="toolbar-btn" id="font-style-btn" title="Change font">
             <span class="font-preview">Aa</span>
           </button>
-          <button class="toolbar-btn" id="text-color-btn" onclick="toggleColorPicker('text')" title="Text color">
+          <button class="toolbar-btn" id="text-color-btn" title="Text color">
             <span class="color-indicator" id="text-color-indicator"></span>
           </button>
-          <button class="toolbar-btn" id="bg-color-btn" onclick="toggleColorPicker('bg')" title="Background color">
+          <button class="toolbar-btn" id="bg-color-btn" title="Background color">
             <span class="highlight-icon">A</span>
           </button>
-          <button class="toolbar-btn" id="eyedropper-btn" onclick="toggleEyedropper()" title="Pick color from cover">
+          <button class="toolbar-btn" id="eyedropper-btn" title="Pick color from cover">
             <span class="eyedropper-icon">&#9673;</span>
           </button>
-          <button class="toolbar-btn done-btn" id="done-btn" onclick="dismissKeyboard()">Done</button>
+          <button class="toolbar-btn done-btn" id="done-btn">Done</button>
         </div>
         <!-- Hidden legacy toolbar for compatibility -->
         <div id="color-toolbar" class="color-toolbar" style="display:none;"></div>
@@ -1631,7 +1654,7 @@
         <div id="edit-trash" class="edit-trash"></div>
 
         <!-- Save button -->
-        <button class="edit-save-btn" onclick="handleSave()">save</button>
+        <button class="edit-save-btn" id="edit-save-btn">save</button>
       </div>
     </div>
   </div>
@@ -1787,6 +1810,7 @@
     let overlayVisible = false;
 
     // Edit View state
+    let lastToolbarTouch = 0; // Timestamp to deduplicate touch + click on iOS
     let editTextBoxes = []; // Array of {id, text, x, y, color, textColor, fontStyle, fontSize}
     let currentTextBoxId = null;
     let textBoxX = 0;
@@ -1824,9 +1848,10 @@
     let eyedropperActive = false;
     let eyedropperMode = 'text'; // 'bg' or 'text' - default to text
     const appPalette = [
-      '#ffffff', '#f5f5f5', '#faf8f5', '#f5ebe0',
-      '#d4cec4', '#b8a99a', '#8b7355', '#5c4d3d',
-      '#1a1a1a', '#2d2d2d', '#4a4a4a', '#6b6b6b'
+      '#ffffff', '#000000', '#ff3b30', '#ff9500',
+      '#ffcc00', '#34c759', '#00c7be', '#30b0c7',
+      '#007aff', '#5856d6', '#af52de', '#ff2d55',
+      '#a2845e', '#8e8e93', '#f5ebe0', '#5c4d3d'
     ];
 
     // Initialize app
@@ -2010,23 +2035,29 @@
       document.getElementById('book-view-more-btn').classList.remove('visible');
       document.getElementById('action-menu').classList.remove('visible');
 
-      // Set cover image (only if different to avoid reload flicker)
+      // Set cover image with fade-in on load
       const coverUrl = book.coverUrl || 'https://via.placeholder.com/300x450/f0f0f0/999?text=No+Cover';
       const bookViewCover = document.getElementById('book-view-cover');
       const bookViewBg = document.getElementById('book-view-bg');
-      const editCover = document.getElementById('edit-cover');
-      const editCoverBg = document.getElementById('edit-cover-bg');
+
+      // Reset fade state
+      bookViewCover.classList.remove('loaded');
+      bookViewBg.classList.remove('loaded');
+
+      // Fade in cover when loaded
+      bookViewCover.onload = () => {
+        bookViewCover.classList.add('loaded');
+        bookViewBg.classList.add('loaded');
+      };
 
       if (bookViewCover.src !== coverUrl) {
         bookViewCover.src = coverUrl;
+      } else if (bookViewCover.complete) {
+        // Same image, already loaded — show immediately
+        bookViewCover.classList.add('loaded');
+        bookViewBg.classList.add('loaded');
       }
       bookViewBg.style.backgroundImage = `url(${coverUrl})`;
-
-      // Pre-load edit view cover to avoid delay when switching
-      if (editCover.src !== coverUrl) {
-        editCover.src = coverUrl;
-      }
-      editCoverBg.style.backgroundImage = `url(${coverUrl})`;
 
       // Clear existing text boxes
       const textContainer = document.getElementById('book-view-cover-wrap');
@@ -2437,6 +2468,11 @@
 
       const cover = document.createElement('img');
       cover.className = 'book-view-cover';
+      cover.decoding = 'async';
+      cover.onload = () => {
+        cover.classList.add('loaded');
+        bg.classList.add('loaded');
+      };
       cover.src = coverUrl;
       coverWrap.appendChild(cover);
 
@@ -2732,12 +2768,17 @@
         }
       });
 
-      // Save button touch handler for mobile
+      // Save button touch/click handler
       saveBtn.addEventListener('touchend', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        lastToolbarTouch = Date.now();
         handleSave();
       }, { passive: false });
+      saveBtn.addEventListener('click', (e) => {
+        if (Date.now() - lastToolbarTouch < 500) return;
+        handleSave();
+      });
 
       // Stories toolbar button touch handlers for mobile
       const fontStyleBtn = document.getElementById('font-style-btn');
@@ -2749,32 +2790,57 @@
       fontStyleBtn.addEventListener('touchend', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        lastToolbarTouch = Date.now();
         toggleFontPicker();
       }, { passive: false });
+      fontStyleBtn.addEventListener('click', (e) => {
+        if (Date.now() - lastToolbarTouch < 500) return;
+        toggleFontPicker();
+      });
 
       textColorBtn.addEventListener('touchend', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        lastToolbarTouch = Date.now();
         toggleColorPicker('text');
       }, { passive: false });
+      textColorBtn.addEventListener('click', (e) => {
+        if (Date.now() - lastToolbarTouch < 500) return;
+        toggleColorPicker('text');
+      });
 
       bgColorBtn.addEventListener('touchend', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        lastToolbarTouch = Date.now();
         toggleColorPicker('bg');
       }, { passive: false });
+      bgColorBtn.addEventListener('click', (e) => {
+        if (Date.now() - lastToolbarTouch < 500) return;
+        toggleColorPicker('bg');
+      });
 
       eyedropperBtn.addEventListener('touchend', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        lastToolbarTouch = Date.now();
         toggleEyedropper();
       }, { passive: false });
+      eyedropperBtn.addEventListener('click', (e) => {
+        if (Date.now() - lastToolbarTouch < 500) return;
+        toggleEyedropper();
+      });
 
       doneBtn.addEventListener('touchend', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        lastToolbarTouch = Date.now();
         dismissKeyboard();
       }, { passive: false });
+      doneBtn.addEventListener('click', (e) => {
+        if (Date.now() - lastToolbarTouch < 500) return;
+        dismissKeyboard();
+      });
 
       // Color swatch touch handler (event delegation)
       const paletteColors = document.getElementById('palette-colors');
@@ -3316,6 +3382,7 @@
         textInput.value = '';
         document.getElementById('edit-text-box-display').textContent = '';
         renderEditTextBoxes();
+        currentTextBoxId = null;
         hideColorToolbar();
       } else {
         // No text, hide the box and remove from array if it existed
@@ -3643,6 +3710,7 @@
         textInput.value = '';
         document.getElementById('edit-text-box-display').textContent = '';
         renderEditTextBoxes();
+        currentTextBoxId = null;
       } else if (currentTextBoxId !== null) {
         // No text, remove empty text box
         editTextBoxes = editTextBoxes.filter(tb => tb.id !== currentTextBoxId);
