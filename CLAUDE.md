@@ -84,7 +84,7 @@ Each text box stores: `text`, `x`, `y`, `color` (background), `textColor`, `font
 - **Text box z-index overlap**: All static text boxes share z-index 15; overlapping boxes may not layer predictably
 - **Image crossOrigin inconsistency**: Some code paths set `crossOrigin="anonymous"`, others remove it on error, leading to mixed behavior
 - **Year field validation**: Accepts any string, not validated as a 4-digit year
-- **iOS keyboard scroll workaround**: Edit view uses aggressive `scrollTo(0,0)` to prevent iOS scroll jumps -- unusual but necessary
+- **iOS keyboard scroll workaround**: Edit view uses `scrollTo(0,0)` on window scroll and visualViewport resize to prevent iOS scroll jumps at the window level (the container-level fix is handled separately; see iOS Fixes below)
 - **Supabase anon key exposed**: The Supabase anonymous key is embedded in the client code (acceptable for anon-key-level access, but row-level security on the database is required)
 
 ---
@@ -129,6 +129,18 @@ reading-journal-web/
 - **Realtime**: Postgres changes subscription on `public.books` table, filtered by user ID
 - **Migration**: On first sign-in, all existing localStorage books are uploaded to Supabase
 - **DB column mapping**: camelCase JS fields <-> snake_case database columns (`bookToRow()` / `rowToBook()`)
+
+### iOS Edit View Cover-Jump Fix (3-Layer Defense)
+
+On iOS PWA (Chrome and Safari), focusing a `<textarea>` triggers WebKit's automatic scroll-into-view, which scrolls `.edit-cover-wrap` to bring the textarea above the keyboard. Even though `overflow: hidden` is set, iOS allows programmatic scrolling of hidden-overflow containers internally. This shifts the cover image and all text boxes. Three layers work together to prevent this:
+
+1. **Layer 1 -- CSS `overflow: clip`** (`.edit-cover-wrap`): Unlike `overflow: hidden`, `clip` does not create a scroll container at all, so iOS WebKit physically cannot scroll the element. `overflow: hidden` is kept as a fallback for iOS < 16 where `clip` is unsupported.
+
+2. **Layer 2 -- JS `focus({ preventScroll: true })`** (all 3 `.focus()` calls in edit view): Tells the browser not to scroll any ancestor to bring the focused element into view. This is the direct API to suppress the scroll-into-view behavior. Applied in `handleEditCoverTap`, `handleEditTextBoxClick`, and the active text box touch-end handler.
+
+3. **Layer 3 -- JS scroll listener on `.edit-cover-wrap`** (`setupEditView`): On older iOS where `overflow: clip` is unsupported, the container falls back to `overflow: hidden` which still allows programmatic scrolling. This listener catches any such scroll and immediately resets `scrollTop`/`scrollLeft` to 0. On newer iOS where `clip` is active, no scroll event fires, so this is a silent no-op.
+
+All three layers are needed because no single one covers all iOS versions and browsers. Do not remove any of them.
 
 ---
 

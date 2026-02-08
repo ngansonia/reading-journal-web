@@ -637,7 +637,14 @@
       flex: 1;
       position: relative;
       overflow: hidden;
-      overflow: clip;  /* clip prevents iOS scroll-into-view from scrolling this container */
+      /* iOS cover-jump fix, layer 1 of 3:
+         Unlike overflow:hidden, overflow:clip does NOT create a scroll
+         container — so iOS WebKit physically cannot scroll this element
+         when it tries to bring a focused textarea into view.
+         overflow:hidden is kept above as a fallback for iOS < 16 where
+         clip is unsupported; layers 2 (preventScroll) and 3 (scroll
+         listener) handle those older devices. */
+      overflow: clip;
       background: #000;
       z-index: 5;
     }
@@ -2847,8 +2854,11 @@
       const bookViewBg = document.getElementById('book-view-bg');
 
       if (skipFade) {
-        // Cube transition: image already loaded, skip fade entirely
+        // Cube transition: image already decoded, show instantly.
+        // decoding='sync' ensures the browser paints the pre-decoded
+        // bitmap in this frame rather than deferring it (as 'async' would).
         bookViewCover.onload = null;
+        bookViewCover.decoding = 'sync';
         bookViewCover.style.transition = 'none';
         bookViewBg.style.transition = 'none';
         bookViewCover.src = coverUrl;
@@ -2856,7 +2866,8 @@
         bookViewBg.classList.add('loaded');
       } else {
         // Normal: fade in cover when loaded
-        // Clear any inline transition override left by a prior skipFade
+        // Clear any inline overrides left by a prior skipFade
+        bookViewCover.decoding = 'async';
         bookViewCover.style.transition = '';
         bookViewBg.style.transition = '';
         bookViewCover.classList.remove('loaded');
@@ -2932,9 +2943,17 @@
       preloadAdjacentBooks();
     }
 
+    // Persistent map of bookId → Image for adjacent covers.
+    // Prevents GC from discarding images before the user swipes,
+    // and eagerly decodes so the bitmap is ready in GPU memory.
+    let preloadedCovers = {};
+
     function preloadAdjacentBooks() {
       const books = getBooks();
       const currentIndex = books.findIndex(b => b.id === selectedBook.id);
+
+      // Release previous preloads
+      preloadedCovers = {};
 
       // Preload previous book cover
       if (currentIndex > 0) {
@@ -2943,6 +2962,8 @@
           const img = new Image();
           img.crossOrigin = 'anonymous';
           img.src = prevBook.coverUrl;
+          if (img.decode) img.decode().catch(() => {});
+          preloadedCovers[prevBook.id] = img;
         }
       }
 
@@ -2953,6 +2974,8 @@
           const img = new Image();
           img.crossOrigin = 'anonymous';
           img.src = nextBook.coverUrl;
+          if (img.decode) img.decode().catch(() => {});
+          preloadedCovers[nextBook.id] = img;
         }
       }
     }
@@ -3361,31 +3384,47 @@
       const scene = cubeScene;
       const wrapper = cubeWrapper;
 
-      // Add transition to the scene
-      scene.classList.add('cube-animate');
+      // --- Start decoding the next cover NOW, in parallel with the rotation ---
+      // If preloadAdjacentBooks() already decoded it, this resolves instantly.
+      // Otherwise the 400ms rotation window gives the decode time to finish.
+      const coverUrl = newBook.coverUrl || 'https://via.placeholder.com/300x450/f0f0f0/999?text=No+Cover';
+      const preloaded = preloadedCovers[newBook.id];
+      const decodeImg = (preloaded && preloaded.src === coverUrl) ? preloaded : new Image();
+      if (!decodeImg.src) {
+        decodeImg.crossOrigin = 'anonymous';
+        decodeImg.src = coverUrl;
+      }
+      const coverDecoded = decodeImg.decode
+        ? decodeImg.decode().catch(() => {})
+        : Promise.resolve();
 
-      // Complete rotation to 90 degrees
+      // --- Animate cube rotation to 90 degrees ---
+      scene.classList.add('cube-animate');
       const finalRotation = cubeDirection === 'left' ? -90 : 90;
       scene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(${finalRotation}deg)`;
 
-      // Wait for the CSS rotation to finish
-      scene.addEventListener('transitionend', function onEnd(e) {
-        if (e.target !== scene) return;
-        scene.removeEventListener('transitionend', onEnd);
+      // Wait for rotation CSS transition to finish
+      const rotationDone = new Promise(resolve => {
+        scene.addEventListener('transitionend', function onEnd(e) {
+          if (e.target !== scene) return;
+          scene.removeEventListener('transitionend', onEnd);
+          resolve();
+        }, { once: false });
+      });
 
-        // Update state to the new book
+      // --- Wait for BOTH rotation AND decode before revealing the new cover ---
+      // The rotation takes 400ms; for cached images the decode is <50ms,
+      // so Promise.all resolves as soon as the rotation ends. For uncached
+      // images the decode may take slightly longer — the cube stays at 90°
+      // for that brief moment (imperceptible vs a blank-frame flash).
+      Promise.all([rotationDone, coverDecoded]).then(() => {
+        // Cube is at 90° and fully covers the view — safe to swap content
         selectedBook = newBook;
         overlayVisible = false;
-
-        // Render the new book underneath the cube with skipFade=true.
-        // The cover appears at full opacity instantly (no 0.3s fade).
-        // Since preloadAdjacentBooks() already cached it, no load delay.
-        // The cube (z-index: 61) still covers everything at this point,
-        // so its own 0.18s fade-out provides the smooth transition.
         renderBookView(false, true);
 
         // Next frame: start the cube fade-out, revealing the
-        // already-visible cover underneath for a seamless handoff.
+        // already-painted cover underneath for a seamless handoff.
         requestAnimationFrame(() => {
           wrapper.classList.add('cube-fade-out');
 
@@ -3402,7 +3441,7 @@
             cubeIsAnimating = false;
           }, { once: false });
         });
-      }, { once: false });
+      });
     }
 
     function snapBackCube() {
@@ -3756,9 +3795,14 @@
         }
       });
 
-      // Prevent iOS scroll-into-view from scrolling the cover container.
-      // On older iOS where overflow:clip isn't supported, overflow:hidden
-      // still allows programmatic scrolling. This resets it immediately.
+      // iOS cover-jump fix, layer 3 of 3:
+      // On older iOS (< 16) where overflow:clip is unsupported, the
+      // container falls back to overflow:hidden — which still allows
+      // programmatic scrolling (including iOS's internal scroll-into-view).
+      // This listener catches any such scroll and immediately resets it,
+      // preventing the cover image from shifting. On newer iOS where
+      // overflow:clip is active, no scroll event can fire here at all,
+      // so this listener is a silent no-op.
       coverWrap.addEventListener('scroll', () => {
         coverWrap.scrollTop = 0;
         coverWrap.scrollLeft = 0;
@@ -4146,7 +4190,12 @@
       // Show toolbar immediately
       showColorToolbar();
 
-      // Enter edit mode and focus immediately to show keyboard
+      // Enter edit mode and focus immediately to show keyboard.
+      // iOS cover-jump fix, layer 2 of 3:
+      // preventScroll tells the browser not to scroll any ancestor
+      // to bring the textarea into view. Without it, iOS WebKit scrolls
+      // .edit-cover-wrap (shifting the cover) even before overflow:clip
+      // or the scroll listener can intervene.
       showEditInputMode();
       textInput.focus({ preventScroll: true });
     }
@@ -4243,6 +4292,7 @@
       if (!isEditing) {
         e.stopPropagation();
         showEditInputMode();
+        // preventScroll: see iOS cover-jump fix layer 2 in handleEditCoverTap
         document.getElementById('edit-text-box-input').focus({ preventScroll: true });
       }
     }
@@ -4973,6 +5023,7 @@
       if (!isDragging && !isEditing) {
         // It was a tap, enter edit mode
         showEditInputMode();
+        // preventScroll: see iOS cover-jump fix layer 2 in handleEditCoverTap
         document.getElementById('edit-text-box-input').focus({ preventScroll: true });
       }
 
