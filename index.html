@@ -188,8 +188,9 @@
       font-style: italic;
       white-space: nowrap;
       text-align: right;
-      flex-shrink: 0;
-      margin-left: 30px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
 
     /* Empty State */
@@ -1859,12 +1860,13 @@
 
         <!-- Color palette dropdown -->
         <div id="color-picker" class="color-picker">
-          <div id="extracted-colors-section" class="color-picker-section" style="display: none;">
-            <div class="color-picker-label">From cover</div>
-            <div id="extracted-colors" class="color-swatches"></div>
-          </div>
           <div class="color-picker-section">
+            <div class="color-picker-label">standard</div>
             <div id="palette-colors" class="color-swatches"></div>
+          </div>
+          <div id="extracted-colors-section" class="color-picker-section" style="display: none;">
+            <div class="color-picker-label">from cover</div>
+            <div id="extracted-colors" class="color-swatches"></div>
           </div>
         </div>
 
@@ -2816,7 +2818,7 @@
       container.addEventListener('click', handleBookViewClick);
     }
 
-    function renderBookView(animate = true) {
+    function renderBookView(animate = true, skipFade = false) {
       const book = selectedBook;
       const container = document.getElementById('book-view-container');
 
@@ -2842,22 +2844,31 @@
       const bookViewCover = document.getElementById('book-view-cover');
       const bookViewBg = document.getElementById('book-view-bg');
 
-      // Reset fade state
-      bookViewCover.classList.remove('loaded');
-      bookViewBg.classList.remove('loaded');
-
-      // Fade in cover when loaded
-      bookViewCover.onload = () => {
-        bookViewCover.classList.add('loaded');
-        bookViewBg.classList.add('loaded');
-      };
-
-      if (bookViewCover.src !== coverUrl) {
+      if (skipFade) {
+        // Cube transition: image already loaded, skip fade entirely
+        bookViewCover.onload = null;
+        bookViewCover.style.transition = 'none';
+        bookViewBg.style.transition = 'none';
         bookViewCover.src = coverUrl;
-      } else if (bookViewCover.complete) {
-        // Same image, already loaded — show immediately
         bookViewCover.classList.add('loaded');
         bookViewBg.classList.add('loaded');
+      } else {
+        // Normal: fade in cover when loaded
+        bookViewCover.classList.remove('loaded');
+        bookViewBg.classList.remove('loaded');
+
+        bookViewCover.onload = () => {
+          bookViewCover.classList.add('loaded');
+          bookViewBg.classList.add('loaded');
+        };
+
+        if (bookViewCover.src !== coverUrl) {
+          bookViewCover.src = coverUrl;
+        } else if (bookViewCover.complete) {
+          // Same image, already loaded — show immediately
+          bookViewCover.classList.add('loaded');
+          bookViewBg.classList.add('loaded');
+        }
       }
       bookViewBg.style.backgroundImage = `url(${coverUrl})`;
 
@@ -3368,35 +3379,50 @@
         const bookViewCover = document.getElementById('book-view-cover');
         const bookViewBg = document.getElementById('book-view-bg');
 
-        // Render new book content while container is still hidden
-        renderBookView(false);
+        const coverUrl = newBook.coverUrl || 'https://via.placeholder.com/300x450/f0f0f0/999?text=No+Cover';
 
-        // Image is cached from cube face — show instantly, skip fade transition
-        bookViewCover.style.transition = 'none';
-        bookViewBg.style.transition = 'none';
-        bookViewCover.classList.add('loaded');
-        bookViewBg.classList.add('loaded');
+        // Ensure image is fully loaded before showing container
+        function revealNewBook() {
+          // Render book content with skipFade (image already loaded, no opacity dance)
+          renderBookView(false, true);
 
-        // Now show the container with correct content
-        container.style.visibility = 'visible';
+          // Show the container with correct content
+          container.style.visibility = 'visible';
 
-        // Wait for the browser to paint the new content, then remove cube
-        requestAnimationFrame(() => {
+          // Wait for the browser to paint the new content, then remove cube
           requestAnimationFrame(() => {
-            // Clean up cube after the new content is fully painted
-            if (wrapper && wrapper.parentNode) {
-              wrapper.remove();
-            }
-            cubeWrapper = null;
-            cubeScene = null;
+            requestAnimationFrame(() => {
+              // Clean up cube after the new content is fully painted
+              if (wrapper && wrapper.parentNode) {
+                wrapper.remove();
+              }
+              cubeWrapper = null;
+              cubeScene = null;
 
-            // Re-enable transitions
-            bookViewCover.style.transition = '';
-            bookViewBg.style.transition = '';
+              // Re-enable transitions
+              bookViewCover.style.transition = '';
+              bookViewBg.style.transition = '';
 
-            cubeIsAnimating = false;
+              cubeIsAnimating = false;
+            });
           });
-        });
+        }
+
+        // Pre-load image into a temporary Image to confirm it's in cache,
+        // then reveal (avoids blank frame when setting src on visible element)
+        let revealed = false;
+        function revealOnce() {
+          if (revealed) return;
+          revealed = true;
+          revealNewBook();
+        }
+        const preload = new Image();
+        preload.onload = revealOnce;
+        preload.onerror = revealOnce; // Show anyway on error
+        preload.src = coverUrl;
+
+        // If already cached synchronously, onload won't fire in some browsers
+        if (preload.complete) revealOnce();
       }, { once: false });
     }
 
