@@ -1149,8 +1149,14 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 60;
+      z-index: 61;
       overflow: hidden;
+      opacity: 1;
+      transition: opacity 0.18s ease-out;
+    }
+
+    .cube-wrapper.cube-fade-out {
+      opacity: 0;
     }
 
     .cube-scene {
@@ -1728,7 +1734,7 @@
           <h1><span>between</span><span>pages</span></h1>
         </div>
         <div class="header-divider"></div>
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden;">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden;max-width:calc(50% - 12px);">
           <p class="tagline">thoughts left between the pages</p>
           <div id="account-indicator" class="account-indicator" onclick="toggleAccountDropdown(event)"></div>
         </div>
@@ -3383,25 +3389,33 @@
         // Render new book content (container behind cube, invisible to user)
         renderBookView(false, true);
 
-        // Clean up: remove cube and re-enable transitions
+        // Clean up: fade out cube, then remove it
         function cleanup() {
           requestAnimationFrame(() => {
-            if (wrapper && wrapper.parentNode) {
-              wrapper.remove();
-            }
-            cubeWrapper = null;
-            cubeScene = null;
+            // Fade out the cube to reveal the rendered book view underneath
+            wrapper.classList.add('cube-fade-out');
 
-            // Re-enable transitions
-            bookViewCover.style.transition = '';
-            bookViewBg.style.transition = '';
+            wrapper.addEventListener('transitionend', function onFade(e) {
+              if (e.target !== wrapper) return;
+              wrapper.removeEventListener('transitionend', onFade);
 
-            cubeIsAnimating = false;
+              if (wrapper.parentNode) {
+                wrapper.remove();
+              }
+              cubeWrapper = null;
+              cubeScene = null;
+
+              // Re-enable transitions
+              bookViewCover.style.transition = '';
+              bookViewBg.style.transition = '';
+
+              cubeIsAnimating = false;
+            }, { once: false });
           });
         }
 
         // Use decode() to guarantee cover image is fully decoded and ready to paint
-        // before removing the cube — prevents any blank frame flash
+        // before fading out the cube
         if (bookViewCover.decode) {
           bookViewCover.decode().then(cleanup).catch(cleanup);
         } else {
