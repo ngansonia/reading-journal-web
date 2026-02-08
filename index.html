@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-visual">
   <title>Between Pages</title>
 
   <!-- PWA Meta Tags -->
@@ -988,6 +988,8 @@
 
     .eyedropper-overlay.active {
       display: block;
+      z-index: 50;
+      touch-action: none;
     }
 
     .eyedropper-preview {
@@ -1023,7 +1025,7 @@
     /* Editable Text Box for Edit View */
     .edit-text-box {
       position: absolute;
-      padding: 10px 14px;
+      padding: 5px 14px;
       min-width: 100px;
       max-width: calc(100% - 20px);
       background: #ffffff;
@@ -1210,7 +1212,7 @@
 
     .cube-face .book-view-text {
       position: absolute;
-      padding: 10px 14px;
+      padding: 5px 14px;
       background: #ffffff;
       color: #1a1a1a;
       z-index: 3;
@@ -1274,7 +1276,7 @@
 
     .book-view-text {
       position: absolute;
-      padding: 10px 14px;
+      padding: 5px 14px;
       background: #ffffff;
       color: #1a1a1a;
       z-index: 3;
@@ -1638,6 +1640,7 @@
 
         <!-- Eyedropper overlay -->
         <div id="eyedropper-overlay" class="eyedropper-overlay"></div>
+        <div id="eyedropper-preview" class="eyedropper-preview"></div>
 
         <div class="edit-cover-wrap" id="edit-cover-wrap">
           <img id="edit-cover" class="edit-cover" src="" alt="" crossorigin="anonymous">
@@ -1845,8 +1848,12 @@
     // Color picker state
     let colorPickerMode = null; // 'bg' or 'text'
     let extractedColors = [];
+    let lockedViewportHeight = 0;
     let eyedropperActive = false;
     let eyedropperMode = 'text'; // 'bg' or 'text' - default to text
+    let eyedropperCanvas = null;
+    let eyedropperCtx = null;
+    let eyedropperPickedColor = null;
     const appPalette = [
       '#ffffff', '#000000', '#ff3b30', '#ff9500',
       '#ffcc00', '#34c759', '#00c7be', '#30b0c7',
@@ -1951,11 +1958,18 @@
       }
     }
 
+    function resetEditViewLayout() {
+      const container = document.getElementById('edit-view-container');
+      container.style.height = '';
+      container.style.top = '';
+    }
+
     function completeShowHomeView(pushState) {
       document.getElementById('home-view').classList.add('active');
       document.getElementById('add-view').classList.remove('active');
       document.getElementById('book-view').classList.remove('active');
       document.getElementById('edit-view').classList.remove('active');
+      resetEditViewLayout();
       currentView = 'home';
       selectedBook = null;
       renderTimeline();
@@ -1967,6 +1981,7 @@
       document.getElementById('add-view').classList.add('active');
       document.getElementById('book-view').classList.remove('active');
       document.getElementById('edit-view').classList.remove('active');
+      resetEditViewLayout();
       currentView = 'add';
       resetAddForm();
       if (pushState) history.pushState({ view: 'add' }, '', '');
@@ -1977,6 +1992,7 @@
       document.getElementById('add-view').classList.remove('active');
       document.getElementById('book-view').classList.add('active');
       document.getElementById('edit-view').classList.remove('active');
+      resetEditViewLayout();
       currentView = 'book';
       selectedBook = book;
       renderBookView(animate);
@@ -1990,6 +2006,12 @@
       document.getElementById('edit-view').classList.add('active');
       currentView = 'edit';
       selectedBook = book;
+
+      // Lock container height so keyboard can't push cover up
+      lockedViewportHeight = window.innerHeight;
+      const container = document.getElementById('edit-view-container');
+      container.style.height = lockedViewportHeight + 'px';
+
       renderEditView();
       if (pushState) history.pushState({ view: 'edit', bookId: book.id }, '', '');
     }
@@ -2546,10 +2568,27 @@
         selectedBook = newBook;
         overlayVisible = false;
 
-        // Show and update original container
         const container = document.getElementById('book-view-container');
-        container.style.visibility = 'visible';
+        const bookViewCover = document.getElementById('book-view-cover');
+        const bookViewBg = document.getElementById('book-view-bg');
+
+        // Render new book content while container is still hidden
         renderBookView(false);
+
+        // Image is cached from cube face — show instantly, skip fade transition
+        bookViewCover.style.transition = 'none';
+        bookViewBg.style.transition = 'none';
+        bookViewCover.classList.add('loaded');
+        bookViewBg.classList.add('loaded');
+
+        // Now show the container with correct content
+        container.style.visibility = 'visible';
+
+        // Re-enable transitions after paint
+        requestAnimationFrame(() => {
+          bookViewCover.style.transition = '';
+          bookViewBg.style.transition = '';
+        });
 
         // Clean up cube
         if (cubeWrapper) {
@@ -2883,6 +2922,31 @@
 
       // Click on text box display to enter edit mode
       textBox.addEventListener('click', handleEditTextBoxClick);
+
+      // Prevent iOS keyboard from pushing the cover up
+      // When iOS focuses an input, it scrolls the page to bring it into view — counteract that
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('scroll', () => {
+          if (currentView === 'edit') {
+            const container = document.getElementById('edit-view-container');
+            container.style.top = window.visualViewport.offsetTop + 'px';
+          }
+        });
+        window.visualViewport.addEventListener('resize', () => {
+          if (currentView === 'edit') {
+            // Keep container at locked full height, don't let keyboard shrink it
+            const container = document.getElementById('edit-view-container');
+            container.style.height = lockedViewportHeight + 'px';
+          }
+        });
+      }
+
+      // Belt-and-suspenders: prevent window scroll during edit mode
+      window.addEventListener('scroll', () => {
+        if (currentView === 'edit') {
+          window.scrollTo(0, 0);
+        }
+      });
     }
 
     // Render Edit View
@@ -3723,13 +3787,18 @@
 
     // Eyedropper functions
     function toggleEyedropper() {
+      // If touch eyedropper is active, deactivate it
+      if (eyedropperActive) {
+        deactivateTouchEyedropper();
+        return;
+      }
+
       // Use native EyeDropper API if available (desktop Chrome/Edge)
       if ('EyeDropper' in window) {
         useNativeEyedropper();
       } else {
-        // Mobile fallback: show color picker with extracted cover colors
-        // Use the current eyedropperMode or default to 'text'
-        toggleColorPicker(eyedropperMode || 'text');
+        // Mobile fallback: touch-based eyedropper on the cover
+        activateTouchEyedropper();
       }
     }
 
@@ -3802,10 +3871,167 @@
     }
 
     function hideEyedropper() {
-      // Native EyeDropper API is modal, no cleanup needed
-      eyedropperActive = false;
+      if (eyedropperActive) {
+        deactivateTouchEyedropper();
+      } else {
+        eyedropperActive = false;
+        const eyedropperBtn = document.getElementById('eyedropper-btn');
+        if (eyedropperBtn) eyedropperBtn.classList.remove('active');
+      }
+    }
+
+    // Touch-based eyedropper for mobile (iOS Safari etc.)
+    function activateTouchEyedropper() {
+      if (colorPickerMode) {
+        eyedropperMode = colorPickerMode;
+      }
+      if (!eyedropperMode) {
+        eyedropperMode = 'text';
+      }
+      hideColorPicker();
+      hideFontPicker();
+
+      const editCover = document.getElementById('edit-cover');
+      if (!editCover.complete || !editCover.naturalWidth) return;
+
+      // Create canvas for pixel sampling
+      try {
+        eyedropperCanvas = document.createElement('canvas');
+        eyedropperCtx = eyedropperCanvas.getContext('2d');
+        eyedropperCanvas.width = editCover.naturalWidth;
+        eyedropperCanvas.height = editCover.naturalHeight;
+        eyedropperCtx.drawImage(editCover, 0, 0);
+        // Test that canvas is not tainted
+        eyedropperCtx.getImageData(0, 0, 1, 1);
+      } catch (e) {
+        // Canvas is tainted (CORS), fall back to color picker
+        eyedropperCanvas = null;
+        eyedropperCtx = null;
+        toggleColorPicker(eyedropperMode || 'text');
+        return;
+      }
+
+      eyedropperActive = true;
+      eyedropperPickedColor = null;
+
+      const overlay = document.getElementById('eyedropper-overlay');
       const eyedropperBtn = document.getElementById('eyedropper-btn');
+
+      overlay.classList.add('active');
+      eyedropperBtn.classList.add('active');
+
+      overlay.addEventListener('touchstart', eyedropperTouchStart, { passive: false });
+      overlay.addEventListener('touchmove', eyedropperTouchMove, { passive: false });
+      overlay.addEventListener('touchend', eyedropperTouchEnd);
+      overlay.addEventListener('touchcancel', eyedropperTouchCancel);
+    }
+
+    function eyedropperTouchStart(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      sampleEyedropperColor(touch.clientX, touch.clientY);
+      updateEyedropperPreview(touch.clientX, touch.clientY);
+    }
+
+    function eyedropperTouchMove(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      sampleEyedropperColor(touch.clientX, touch.clientY);
+      updateEyedropperPreview(touch.clientX, touch.clientY);
+    }
+
+    function eyedropperTouchEnd(e) {
+      if (eyedropperPickedColor && currentTextBoxId !== null) {
+        applyEyedropperColor(eyedropperPickedColor);
+      }
+      deactivateTouchEyedropper();
+    }
+
+    function eyedropperTouchCancel() {
+      deactivateTouchEyedropper();
+    }
+
+    function sampleEyedropperColor(clientX, clientY) {
+      if (!eyedropperCanvas || !eyedropperCtx) return;
+
+      const editCover = document.getElementById('edit-cover');
+      const rect = editCover.getBoundingClientRect();
+
+      // Map touch coordinates to image pixel coordinates
+      const relX = (clientX - rect.left) / rect.width;
+      const relY = (clientY - rect.top) / rect.height;
+
+      // Clamp to image bounds
+      const cx = Math.max(0, Math.min(eyedropperCanvas.width - 1, Math.floor(relX * eyedropperCanvas.width)));
+      const cy = Math.max(0, Math.min(eyedropperCanvas.height - 1, Math.floor(relY * eyedropperCanvas.height)));
+
+      const pixel = eyedropperCtx.getImageData(cx, cy, 1, 1).data;
+      eyedropperPickedColor = rgbToHex(pixel[0], pixel[1], pixel[2]);
+    }
+
+    function updateEyedropperPreview(clientX, clientY) {
+      const preview = document.getElementById('eyedropper-preview');
+      if (!preview) return;
+
+      preview.classList.add('visible');
+      preview.style.left = clientX + 'px';
+      preview.style.top = clientY + 'px';
+      preview.style.backgroundColor = eyedropperPickedColor || '#888';
+    }
+
+    function applyEyedropperColor(color) {
+      const tb = editTextBoxes.find(t => t.id === currentTextBoxId);
+      if (!tb) return;
+
+      const textBox = document.getElementById('edit-text-box');
+      const staticEl = document.querySelector(`.edit-text-static[data-id="${currentTextBoxId}"]`);
+
+      if (eyedropperMode === 'bg') {
+        tb.color = color;
+        if (textBox.style.display !== 'none') {
+          textBox.style.backgroundColor = color;
+          textBox.classList.remove('no-bg');
+          if (!tb.textColor) {
+            textBox.style.color = isLightColor(color) ? '#1a1a1a' : '#ffffff';
+          }
+        }
+        if (staticEl) {
+          staticEl.style.backgroundColor = color;
+          staticEl.classList.remove('no-bg');
+          if (!tb.textColor) {
+            staticEl.style.color = isLightColor(color) ? '#1a1a1a' : '#ffffff';
+          }
+        }
+      } else if (eyedropperMode === 'text') {
+        tb.textColor = color;
+        if (textBox.style.display !== 'none') {
+          textBox.style.color = color;
+        }
+        if (staticEl) {
+          staticEl.style.color = color;
+        }
+      }
+      updateToolbarState();
+    }
+
+    function deactivateTouchEyedropper() {
+      eyedropperActive = false;
+      eyedropperPickedColor = null;
+      eyedropperCanvas = null;
+      eyedropperCtx = null;
+
+      const overlay = document.getElementById('eyedropper-overlay');
+      const preview = document.getElementById('eyedropper-preview');
+      const eyedropperBtn = document.getElementById('eyedropper-btn');
+
+      overlay.classList.remove('active');
+      if (preview) preview.classList.remove('visible');
       if (eyedropperBtn) eyedropperBtn.classList.remove('active');
+
+      overlay.removeEventListener('touchstart', eyedropperTouchStart);
+      overlay.removeEventListener('touchmove', eyedropperTouchMove);
+      overlay.removeEventListener('touchend', eyedropperTouchEnd);
+      overlay.removeEventListener('touchcancel', eyedropperTouchCancel);
     }
 
     // Text box dragging (touch)
