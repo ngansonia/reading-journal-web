@@ -1914,7 +1914,7 @@
     const SUPABASE_URL = 'https://rqarzveebwgvuqdocifh.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxYXJ6dmVlYndndnVxZG9jaWZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NDI3OTksImV4cCI6MjA4NjExODc5OX0.3U9aI0CN-45rHAMH0hk7LUO24QMs5wV93gBLPML8ELs';
 
-    let supabase = null;
+    let supabaseClient = null;
     let currentUser = null;
     let isOnline = navigator.onLine;
     let isSyncing = false;
@@ -1923,13 +1923,13 @@
 
     // Initialize Supabase client (only if configured)
     function getSupabase() {
-      if (supabase) return supabase;
+      if (supabaseClient) return supabaseClient;
       if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
         return null;
       }
       try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        return supabase;
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        return supabaseClient;
       } catch (e) {
         console.error('[Sync] Failed to init Supabase:', e);
         return null;
@@ -3699,7 +3699,7 @@
           e.stopPropagation();
           const color = swatch.style.background || swatch.style.backgroundColor;
           // Convert rgb to hex if needed
-          const hexColor = color.startsWith('#') ? color : rgbToHex(color);
+          const hexColor = color.startsWith('#') ? color : rgbStringToHex(color);
           applyColor(hexColor);
         }
       }, { passive: false });
@@ -4377,7 +4377,7 @@
       return brightness > 180;
     }
 
-    function rgbToHex(rgb) {
+    function rgbStringToHex(rgb) {
       // Handle both "rgb(r, g, b)" and "rgba(r, g, b, a)" formats
       const match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
       if (!match) return rgb;
@@ -4538,7 +4538,7 @@
         if (hasBg) {
           highlightIcon.style.background = bgColor;
           // Set text color for visibility
-          highlightIcon.style.color = isLightColor(rgbToHex(bgColor)) ? '#1a1a1a' : '#ffffff';
+          highlightIcon.style.color = isLightColor(rgbStringToHex(bgColor)) ? '#1a1a1a' : '#ffffff';
         } else {
           highlightIcon.style.background = 'rgba(255, 255, 255, 0.3)';
           highlightIcon.style.color = '#fff';
