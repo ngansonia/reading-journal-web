@@ -637,6 +637,7 @@
       flex: 1;
       position: relative;
       overflow: hidden;
+      overflow: clip;  /* clip prevents iOS scroll-into-view from scrolling this container */
       background: #000;
       z-index: 5;
     }
@@ -2855,6 +2856,9 @@
         bookViewBg.classList.add('loaded');
       } else {
         // Normal: fade in cover when loaded
+        // Clear any inline transition override left by a prior skipFade
+        bookViewCover.style.transition = '';
+        bookViewBg.style.transition = '';
         bookViewCover.classList.remove('loaded');
         bookViewBg.classList.remove('loaded');
 
@@ -3373,14 +3377,15 @@
         selectedBook = newBook;
         overlayVisible = false;
 
-        // Render the new book underneath the cube.
-        // Do NOT use skipFade — cover and bg start at opacity: 0
-        // and fade in via their CSS transitions (0.3s / 0.4s).
-        // The cube (z-index: 61) still covers everything at this point.
-        renderBookView(false, false);
+        // Render the new book underneath the cube with skipFade=true.
+        // The cover appears at full opacity instantly (no 0.3s fade).
+        // Since preloadAdjacentBooks() already cached it, no load delay.
+        // The cube (z-index: 61) still covers everything at this point,
+        // so its own 0.18s fade-out provides the smooth transition.
+        renderBookView(false, true);
 
-        // Next frame: start the cube fade-out. This runs concurrently
-        // with the cover/bg fade-in, producing a smooth cross-fade.
+        // Next frame: start the cube fade-out, revealing the
+        // already-visible cover underneath for a seamless handoff.
         requestAnimationFrame(() => {
           wrapper.classList.add('cube-fade-out');
 
@@ -3749,6 +3754,14 @@
         if (currentView === 'edit') {
           window.scrollTo(0, 0);
         }
+      });
+
+      // Prevent iOS scroll-into-view from scrolling the cover container.
+      // On older iOS where overflow:clip isn't supported, overflow:hidden
+      // still allows programmatic scrolling. This resets it immediately.
+      coverWrap.addEventListener('scroll', () => {
+        coverWrap.scrollTop = 0;
+        coverWrap.scrollLeft = 0;
       });
     }
 
@@ -4135,7 +4148,7 @@
 
       // Enter edit mode and focus immediately to show keyboard
       showEditInputMode();
-      textInput.focus();
+      textInput.focus({ preventScroll: true });
     }
 
     function showEditInputMode() {
@@ -4230,7 +4243,7 @@
       if (!isEditing) {
         e.stopPropagation();
         showEditInputMode();
-        document.getElementById('edit-text-box-input').focus();
+        document.getElementById('edit-text-box-input').focus({ preventScroll: true });
       }
     }
 
@@ -4960,7 +4973,7 @@
       if (!isDragging && !isEditing) {
         // It was a tap, enter edit mode
         showEditInputMode();
-        document.getElementById('edit-text-box-input').focus();
+        document.getElementById('edit-text-box-input').focus({ preventScroll: true });
       }
 
       isDragging = false;

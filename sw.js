@@ -2,7 +2,7 @@
 // This file makes the app work offline and load faster
 
 // Version number - change this when you update your app to force a refresh
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE_NAME = `between-pages-${CACHE_VERSION}`;
 
 // Files that make up the "app shell" - the core files needed to run the app
