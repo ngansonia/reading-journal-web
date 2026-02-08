@@ -3379,50 +3379,37 @@
         const bookViewCover = document.getElementById('book-view-cover');
         const bookViewBg = document.getElementById('book-view-bg');
 
-        const coverUrl = newBook.coverUrl || 'https://via.placeholder.com/300x450/f0f0f0/999?text=No+Cover';
+        // Render new book content (container hidden behind cube, invisible to user)
+        renderBookView(false, true);
 
-        // Ensure image is fully loaded before showing container
-        function revealNewBook() {
-          // Render book content with skipFade (image already loaded, no opacity dance)
-          renderBookView(false, true);
+        // Show container behind cube (cube is on top by DOM order, so no visual change)
+        container.style.visibility = 'visible';
 
-          // Show the container with correct content
-          container.style.visibility = 'visible';
-
-          // Wait for the browser to paint the new content, then remove cube
+        // Clean up: remove cube and re-enable transitions
+        function cleanup() {
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              // Clean up cube after the new content is fully painted
-              if (wrapper && wrapper.parentNode) {
-                wrapper.remove();
-              }
-              cubeWrapper = null;
-              cubeScene = null;
+            if (wrapper && wrapper.parentNode) {
+              wrapper.remove();
+            }
+            cubeWrapper = null;
+            cubeScene = null;
 
-              // Re-enable transitions
-              bookViewCover.style.transition = '';
-              bookViewBg.style.transition = '';
+            // Re-enable transitions
+            bookViewCover.style.transition = '';
+            bookViewBg.style.transition = '';
 
-              cubeIsAnimating = false;
-            });
+            cubeIsAnimating = false;
           });
         }
 
-        // Pre-load image into a temporary Image to confirm it's in cache,
-        // then reveal (avoids blank frame when setting src on visible element)
-        let revealed = false;
-        function revealOnce() {
-          if (revealed) return;
-          revealed = true;
-          revealNewBook();
+        // Use decode() to guarantee cover image is fully decoded and ready to paint
+        // before removing the cube — prevents any blank frame flash
+        if (bookViewCover.decode) {
+          bookViewCover.decode().then(cleanup).catch(cleanup);
+        } else {
+          // Fallback for older browsers
+          requestAnimationFrame(() => { requestAnimationFrame(cleanup); });
         }
-        const preload = new Image();
-        preload.onload = revealOnce;
-        preload.onerror = revealOnce; // Show anyway on error
-        preload.src = coverUrl;
-
-        // If already cached synchronously, onload won't fire in some browsers
-        if (preload.complete) revealOnce();
       }, { once: false });
     }
 
