@@ -1187,6 +1187,8 @@
       background-position: center;
       filter: blur(20px) brightness(0.4);
       z-index: 1;
+      opacity: 1;
+      transition: none;
     }
 
     .cube-face .book-view-cover-wrap {
@@ -1209,6 +1211,8 @@
       width: auto;
       height: 100%;
       object-fit: contain;
+      opacity: 1;
+      transition: none;
     }
 
     .cube-face .book-view-text {
@@ -2989,8 +2993,6 @@
           cubeWrapper = null;
           cubeScene = null;
         }
-        const container = document.getElementById('book-view-container');
-        container.style.visibility = 'visible';
       }
 
       touchStarted = true;
@@ -3228,8 +3230,7 @@
 
       if (!adjacentBook) return;
 
-      // Hide original container
-      container.style.visibility = 'hidden';
+      // No need to hide container — cube overlays it (same z-index, later in DOM order)
 
       // Calculate perspective - should be larger than the cube radius for realistic depth
       cubePerspective = cubeHalfWidth * 3;
@@ -3379,11 +3380,8 @@
         const bookViewCover = document.getElementById('book-view-cover');
         const bookViewBg = document.getElementById('book-view-bg');
 
-        // Render new book content (container hidden behind cube, invisible to user)
+        // Render new book content (container behind cube, invisible to user)
         renderBookView(false, true);
-
-        // Show container behind cube (cube is on top by DOM order, so no visual change)
-        container.style.visibility = 'visible';
 
         // Clean up: remove cube and re-enable transitions
         function cleanup() {
@@ -3428,10 +3426,6 @@
       scene.addEventListener('transitionend', function onEnd(e) {
         if (e.target !== scene) return;
         scene.removeEventListener('transitionend', onEnd);
-
-        // Show original container
-        const container = document.getElementById('book-view-container');
-        container.style.visibility = 'visible';
 
         // Wait for paint, then remove cube
         requestAnimationFrame(() => {
