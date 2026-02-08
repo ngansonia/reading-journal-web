@@ -11,7 +11,9 @@ const APP_SHELL = [
   '/index.html',
   '/manifest.json',
   // Google Fonts (cached for offline use)
-  'https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap'
+  'https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap',
+  // Supabase JS client
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
 // Install event - runs when the service worker is first installed
@@ -145,6 +147,11 @@ self.addEventListener('fetch', (event) => {
             });
         })
     );
+    return;
+  }
+
+  // For Supabase API calls, always pass through to network (don't cache)
+  if (url.hostname.includes('supabase.co') || url.hostname.includes('supabase.in')) {
     return;
   }
 

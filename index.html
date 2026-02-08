@@ -1025,7 +1025,7 @@
     /* Editable Text Box for Edit View */
     .edit-text-box {
       position: absolute;
-      padding: 5px 14px;
+      padding: 2px 14px;
       min-width: 100px;
       max-width: calc(100% - 20px);
       background: #ffffff;
@@ -1212,7 +1212,7 @@
 
     .cube-face .book-view-text {
       position: absolute;
-      padding: 5px 14px;
+      padding: 2px 14px;
       background: #ffffff;
       color: #1a1a1a;
       z-index: 3;
@@ -1276,7 +1276,7 @@
 
     .book-view-text {
       position: absolute;
-      padding: 5px 14px;
+      padding: 2px 14px;
       background: #ffffff;
       color: #1a1a1a;
       z-index: 3;
@@ -1488,9 +1488,232 @@
       background: #b8847a;
     }
 
+    /* Auth Screen */
+    .auth-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 200;
+      background: #faf8f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+    }
+
+    .auth-screen.hidden {
+      display: none;
+    }
+
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .auth-logo-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 24px;
+      height: 28px;
+    }
+
+    .auth-logo-icon::before,
+    .auth-logo-icon::after {
+      content: '';
+      width: 2px;
+      height: 22px;
+      background: linear-gradient(to bottom, transparent, #8b7355 20%, #8b7355 80%, transparent);
+      border-radius: 1px;
+    }
+
+    .auth-logo-icon::after {
+      background: linear-gradient(to bottom, transparent, #a89078 20%, #a89078 80%, transparent);
+    }
+
+    .auth-title {
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: 4px;
+      color: #5c4d3d;
+      text-transform: lowercase;
+    }
+
+    .auth-subtitle {
+      font-size: 11px;
+      color: #b8a99a;
+      letter-spacing: 0.5px;
+      font-style: italic;
+      margin-bottom: 48px;
+    }
+
+    .auth-btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid #e8e4df;
+      padding: 14px 32px;
+      font-family: inherit;
+      font-size: 14px;
+      letter-spacing: 1px;
+      color: #5c4d3d;
+      cursor: pointer;
+      text-transform: lowercase;
+      margin-bottom: 16px;
+      min-width: 260px;
+      transition: background 0.2s;
+    }
+
+    .auth-btn-google:hover {
+      background: #f5f0ea;
+    }
+
+    .auth-btn-google svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .auth-btn-skip {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 12px;
+      color: #b8a99a;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: lowercase;
+      padding: 8px 16px;
+    }
+
+    .auth-btn-skip:hover {
+      color: #8b7355;
+    }
+
+    /* Account Indicator */
+    .account-indicator {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #5c4d3d;
+      color: #faf8f5;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .account-indicator.visible {
+      display: flex;
+    }
+
+    .account-indicator img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Account Dropdown */
+    .account-dropdown {
+      position: absolute;
+      top: 48px;
+      right: 20px;
+      background: #faf8f5;
+      border-radius: 4px;
+      padding: 4px 0;
+      min-width: 160px;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .account-dropdown.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .account-dropdown-email {
+      padding: 10px 16px;
+      font-size: 11px;
+      color: #a89078;
+      border-bottom: 1px solid #e8e4df;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .account-dropdown-item {
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 13px;
+      color: #5c4d3d;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: lowercase;
+    }
+
+    .account-dropdown-item:hover {
+      background: #f0ebe4;
+    }
+
+    /* Sync Indicator */
+    .sync-indicator {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(92, 77, 61, 0.85);
+      color: #faf8f5;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: inherit;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      z-index: 150;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .sync-indicator.visible {
+      opacity: 1;
+    }
+
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <!-- Auth Screen -->
+  <div id="auth-screen" class="auth-screen hidden">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"></div>
+      <span class="auth-title">between pages</span>
+    </div>
+    <p class="auth-subtitle">thoughts left between the pages</p>
+    <button class="auth-btn-google" onclick="signInWithGoogle()">
+      <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      sign in with google
+    </button>
+    <button class="auth-btn-skip" onclick="skipAuth()">continue without account</button>
+  </div>
+
+  <!-- Sync Indicator -->
+  <div id="sync-indicator" class="sync-indicator"></div>
+
   <div class="container">
     <!-- Home View -->
     <div id="home-view" class="view active">
@@ -1500,7 +1723,14 @@
           <h1><span>between</span><span>pages</span></h1>
         </div>
         <div class="header-divider"></div>
-        <p class="tagline">thoughts left between the pages</p>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <p class="tagline">thoughts left between the pages</p>
+          <div id="account-indicator" class="account-indicator" onclick="toggleAccountDropdown(event)"></div>
+        </div>
+        <div id="account-dropdown" class="account-dropdown">
+          <div id="account-dropdown-email" class="account-dropdown-email"></div>
+          <div class="account-dropdown-item" onclick="signOut()">sign out</div>
+        </div>
       </div>
       <div id="timeline" class="timeline">
         <!-- Timeline content will be rendered here -->
@@ -1566,7 +1796,7 @@
       <div class="book-view-container" id="book-view-container">
         <div class="book-view-bg" id="book-view-bg"></div>
         <div class="book-view-cover-wrap" id="book-view-cover-wrap">
-          <img id="book-view-cover" class="book-view-cover" src="" alt="" decoding="async">
+          <img id="book-view-cover" class="book-view-cover" src="" alt="" decoding="async" crossorigin="anonymous">
         </div>
 
         <!-- More button (shown on second tap) -->
@@ -1677,6 +1907,544 @@
   <script>
     // Storage key
     const BOOKS_KEY = 'between_pages_books_v5';
+
+    // ==========================================
+    // Supabase Configuration
+    // ==========================================
+    const SUPABASE_URL = 'https://rqarzveebwgvuqdocifh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxYXJ6dmVlYndndnVxZG9jaWZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1NDI3OTksImV4cCI6MjA4NjExODc5OX0.3U9aI0CN-45rHAMH0hk7LUO24QMs5wV93gBLPML8ELs';
+
+    let supabase = null;
+    let currentUser = null;
+    let isOnline = navigator.onLine;
+    let isSyncing = false;
+    let realtimeChannel = null;
+    let lastSyncedBookId = null; // Guard against echoing own realtime writes
+
+    // Initialize Supabase client (only if configured)
+    function getSupabase() {
+      if (supabase) return supabase;
+      if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
+        return null;
+      }
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        return supabase;
+      } catch (e) {
+        console.error('[Sync] Failed to init Supabase:', e);
+        return null;
+      }
+    }
+
+    // ==========================================
+    // Auth Functions
+    // ==========================================
+    async function initAuth() {
+      const sb = getSupabase();
+      if (!sb) {
+        // Supabase not configured — skip auth entirely
+        document.getElementById('auth-screen').classList.add('hidden');
+        return;
+      }
+
+      // Check if user previously skipped auth
+      const skipped = localStorage.getItem('bp_auth_skipped');
+
+      // Check existing session
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        currentUser = session.user;
+        onAuthSuccess();
+        return;
+      }
+
+      // If user previously skipped, don't show auth screen
+      if (skipped) {
+        document.getElementById('auth-screen').classList.add('hidden');
+      } else {
+        document.getElementById('auth-screen').classList.remove('hidden');
+      }
+
+      // Listen for auth state changes (handles OAuth redirect)
+      sb.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          currentUser = session.user;
+          onAuthSuccess();
+        } else if (event === 'SIGNED_OUT') {
+          currentUser = null;
+          hideAccountIndicator();
+          if (realtimeChannel) {
+            const sb2 = getSupabase();
+            if (sb2) sb2.removeChannel(realtimeChannel);
+            realtimeChannel = null;
+          }
+        }
+      });
+    }
+
+    async function signInWithGoogle() {
+      const sb = getSupabase();
+      if (!sb) return;
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + window.location.pathname
+        }
+      });
+      if (error) {
+        console.error('[Auth] Google sign-in error:', error);
+        alert('Sign-in failed. Please try again.');
+      }
+    }
+
+    function skipAuth() {
+      localStorage.setItem('bp_auth_skipped', 'true');
+      document.getElementById('auth-screen').classList.add('hidden');
+    }
+
+    async function signOut() {
+      const sb = getSupabase();
+      if (!sb) return;
+      hideAccountDropdown();
+      await sb.auth.signOut();
+      currentUser = null;
+      hideAccountIndicator();
+      localStorage.removeItem('bp_auth_skipped');
+      document.getElementById('auth-screen').classList.remove('hidden');
+    }
+
+    function onAuthSuccess() {
+      document.getElementById('auth-screen').classList.add('hidden');
+      localStorage.removeItem('bp_auth_skipped');
+      showAccountIndicator();
+      // Migrate existing local books, then sync, then subscribe to realtime
+      migrateLocalBooksToSupabase().then(() => {
+        syncFromSupabase().then(() => {
+          subscribeToRealtime();
+          processOfflineQueue();
+        });
+      });
+    }
+
+    // Account indicator helpers
+    function showAccountIndicator() {
+      const el = document.getElementById('account-indicator');
+      const emailEl = document.getElementById('account-dropdown-email');
+      if (!currentUser) return;
+
+      const meta = currentUser.user_metadata || {};
+      const avatarUrl = meta.avatar_url || meta.picture;
+      const name = meta.full_name || meta.name || currentUser.email || '';
+
+      if (avatarUrl) {
+        el.innerHTML = `<img src="${avatarUrl}" alt="${name}" referrerpolicy="no-referrer">`;
+      } else {
+        el.textContent = name.charAt(0).toUpperCase();
+      }
+      el.classList.add('visible');
+      emailEl.textContent = currentUser.email || '';
+    }
+
+    function hideAccountIndicator() {
+      const el = document.getElementById('account-indicator');
+      el.classList.remove('visible');
+      el.innerHTML = '';
+      hideAccountDropdown();
+    }
+
+    function toggleAccountDropdown(e) {
+      e.stopPropagation();
+      const dd = document.getElementById('account-dropdown');
+      dd.classList.toggle('visible');
+
+      // Close on outside click
+      if (dd.classList.contains('visible')) {
+        setTimeout(() => {
+          document.addEventListener('click', closeAccountDropdownOutside, { once: true });
+        }, 0);
+      }
+    }
+
+    function closeAccountDropdownOutside() {
+      hideAccountDropdown();
+    }
+
+    function hideAccountDropdown() {
+      document.getElementById('account-dropdown').classList.remove('visible');
+    }
+
+    // ==========================================
+    // Sync Engine
+    // ==========================================
+    function generateBookId() {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return 'book_' + crypto.randomUUID();
+      }
+      return 'book_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Convert JS camelCase book to DB snake_case row
+    function bookToRow(book, userId) {
+      return {
+        id: book.id,
+        user_id: userId,
+        title: book.title,
+        author: book.author || 'Unknown Author',
+        cover_url: book.coverUrl || '',
+        year_read: book.yearRead || '',
+        date_added: book.dateAdded || new Date().toISOString(),
+        summary: book.summary || '',
+        reflection: book.reflection || '',
+        text_boxes: book.textBoxes || [],
+        text_box_color: book.textBoxColor || '#ffffff',
+        text_box_x: book.textBoxX || 0,
+        text_box_y: book.textBoxY || 0,
+        updated_at: new Date().toISOString()
+      };
+    }
+
+    // Convert DB snake_case row to JS camelCase book
+    function rowToBook(row) {
+      return {
+        id: row.id,
+        title: row.title,
+        author: row.author || 'Unknown Author',
+        coverUrl: row.cover_url || '',
+        yearRead: row.year_read || '',
+        dateAdded: row.date_added || '',
+        summary: row.summary || '',
+        reflection: row.reflection || '',
+        textBoxes: row.text_boxes || [],
+        textBoxColor: row.text_box_color || '#ffffff',
+        textBoxX: row.text_box_x || 0,
+        textBoxY: row.text_box_y || 0,
+        updatedAt: row.updated_at || ''
+      };
+    }
+
+    // Push a single book operation to Supabase
+    async function syncBookToSupabase(book, operation) {
+      if (!currentUser) return;
+      const sb = getSupabase();
+      if (!sb) return;
+
+      try {
+        if (operation === 'DELETE') {
+          const { error } = await sb.from('books').delete().eq('id', book.id).eq('user_id', currentUser.id);
+          if (error) throw error;
+        } else {
+          // Upload base64 cover first if needed
+          const processedBook = await uploadCoverIfBase64(book);
+          const row = bookToRow(processedBook, currentUser.id);
+          lastSyncedBookId = row.id;
+          const { error } = await sb.from('books').upsert(row, { onConflict: 'id' });
+          if (error) throw error;
+
+          // If cover URL changed after upload, update localStorage too
+          if (processedBook.coverUrl !== book.coverUrl) {
+            const books = getBooks();
+            const idx = books.findIndex(b => b.id === book.id);
+            if (idx !== -1) {
+              books[idx].coverUrl = processedBook.coverUrl;
+              saveBooks(books);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('[Sync] Push failed, queuing:', e.message);
+        queueSyncOperation(book, operation);
+      }
+    }
+
+    // Pull all user's books from Supabase and merge with local
+    async function syncFromSupabase() {
+      if (!currentUser) return;
+      const sb = getSupabase();
+      if (!sb) return;
+      if (isSyncing) return;
+
+      isSyncing = true;
+      showSyncIndicator('syncing...');
+
+      try {
+        const { data, error } = await sb.from('books').select('*').eq('user_id', currentUser.id);
+        if (error) throw error;
+
+        const remoteBooks = (data || []).map(rowToBook);
+        const localBooks = getBooks();
+        const merged = mergeBooks(localBooks, remoteBooks);
+        saveBooks(merged);
+        renderTimeline();
+        showSyncIndicator('synced');
+      } catch (e) {
+        console.error('[Sync] Pull failed:', e);
+        showSyncIndicator('sync error');
+      } finally {
+        isSyncing = false;
+        setTimeout(hideSyncIndicator, 2000);
+      }
+    }
+
+    // Merge local and remote books — remote wins for conflicts, keeps local-only books
+    function mergeBooks(localBooks, remoteBooks) {
+      const remoteMap = new Map();
+      remoteBooks.forEach(b => remoteMap.set(b.id, b));
+
+      const merged = [];
+      const seen = new Set();
+
+      // Add all remote books (they win conflicts)
+      remoteBooks.forEach(b => {
+        merged.push(b);
+        seen.add(b.id);
+      });
+
+      // Add local-only books (not in remote, not sample books)
+      localBooks.forEach(b => {
+        if (!seen.has(b.id) && !b.id.startsWith('sample_')) {
+          merged.push(b);
+        }
+      });
+
+      // Keep sample books from local
+      localBooks.forEach(b => {
+        if (b.id.startsWith('sample_') && !seen.has(b.id)) {
+          merged.push(b);
+        }
+      });
+
+      return merged;
+    }
+
+    // ==========================================
+    // Cover Upload (Base64 -> Supabase Storage)
+    // ==========================================
+    function isBase64Cover(url) {
+      return url && url.startsWith('data:');
+    }
+
+    async function uploadCoverIfBase64(book) {
+      if (!isBase64Cover(book.coverUrl)) return book;
+      if (!currentUser) return book;
+      const sb = getSupabase();
+      if (!sb) return book;
+
+      try {
+        // Convert base64 to blob
+        const response = await fetch(book.coverUrl);
+        const blob = await response.blob();
+
+        const filePath = `${currentUser.id}/${book.id}.jpg`;
+        const { error: uploadError } = await sb.storage
+          .from('covers')
+          .upload(filePath, blob, { upsert: true, contentType: 'image/jpeg' });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = sb.storage.from('covers').getPublicUrl(filePath);
+
+        return { ...book, coverUrl: publicUrl };
+      } catch (e) {
+        console.warn('[Sync] Cover upload failed:', e.message);
+        return book; // Keep base64 URL as fallback
+      }
+    }
+
+    // ==========================================
+    // Offline Queue
+    // ==========================================
+    const OFFLINE_QUEUE_KEY = 'bp_offline_queue';
+
+    function queueSyncOperation(book, operation) {
+      const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+      // Replace existing entry for the same book id
+      const existingIdx = queue.findIndex(q => q.book.id === book.id);
+      if (existingIdx !== -1) {
+        // If new op is DELETE, replace. Otherwise update the book data.
+        if (operation === 'DELETE') {
+          queue[existingIdx] = { book: { id: book.id }, operation: 'DELETE' };
+        } else {
+          queue[existingIdx] = { book, operation };
+        }
+      } else {
+        queue.push({ book, operation });
+      }
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+    }
+
+    async function processOfflineQueue() {
+      if (!currentUser) return;
+      const sb = getSupabase();
+      if (!sb) return;
+      if (!isOnline) return;
+
+      const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+      if (queue.length === 0) return;
+
+      showSyncIndicator('syncing...');
+      const remaining = [];
+
+      for (const item of queue) {
+        try {
+          if (item.operation === 'DELETE') {
+            const { error } = await sb.from('books').delete().eq('id', item.book.id).eq('user_id', currentUser.id);
+            if (error) throw error;
+          } else {
+            const processedBook = await uploadCoverIfBase64(item.book);
+            const row = bookToRow(processedBook, currentUser.id);
+            const { error } = await sb.from('books').upsert(row, { onConflict: 'id' });
+            if (error) throw error;
+          }
+        } catch (e) {
+          console.warn('[Sync] Queue item failed:', e.message);
+          remaining.push(item);
+        }
+      }
+
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(remaining));
+      if (remaining.length === 0) {
+        showSyncIndicator('synced');
+      } else {
+        showSyncIndicator('some items pending');
+      }
+      setTimeout(hideSyncIndicator, 2000);
+    }
+
+    // Online/offline listeners
+    window.addEventListener('online', () => {
+      isOnline = true;
+      processOfflineQueue();
+    });
+    window.addEventListener('offline', () => {
+      isOnline = false;
+    });
+
+    // ==========================================
+    // Realtime Subscriptions
+    // ==========================================
+    function subscribeToRealtime() {
+      if (!currentUser) return;
+      const sb = getSupabase();
+      if (!sb) return;
+
+      // Remove existing channel
+      if (realtimeChannel) {
+        sb.removeChannel(realtimeChannel);
+      }
+
+      realtimeChannel = sb
+        .channel('books-changes')
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'books',
+          filter: `user_id=eq.${currentUser.id}`
+        }, (payload) => {
+          handleRealtimeChange(payload);
+        })
+        .subscribe();
+    }
+
+    function handleRealtimeChange(payload) {
+      const { eventType, new: newRow, old: oldRow } = payload;
+
+      // Guard against echoing own writes
+      if (newRow && newRow.id === lastSyncedBookId) {
+        lastSyncedBookId = null;
+        return;
+      }
+
+      const books = getBooks();
+
+      if (eventType === 'INSERT' || eventType === 'UPDATE') {
+        const remoteBook = rowToBook(newRow);
+        const idx = books.findIndex(b => b.id === remoteBook.id);
+        if (idx !== -1) {
+          books[idx] = remoteBook;
+        } else {
+          books.unshift(remoteBook);
+        }
+        saveBooks(books);
+        renderTimeline();
+
+        // If viewing this book, re-render
+        if (selectedBook && selectedBook.id === remoteBook.id) {
+          selectedBook = remoteBook;
+          if (currentView === 'book') renderBookView(false);
+        }
+      } else if (eventType === 'DELETE') {
+        const deletedId = oldRow?.id;
+        if (deletedId) {
+          saveBooks(books.filter(b => b.id !== deletedId));
+          renderTimeline();
+
+          // If viewing this book, go home
+          if (selectedBook && selectedBook.id === deletedId) {
+            showHomeView();
+          }
+        }
+      }
+    }
+
+    // ==========================================
+    // Migration: Local -> Supabase on first sign-in
+    // ==========================================
+    async function migrateLocalBooksToSupabase() {
+      if (!currentUser) return;
+      const sb = getSupabase();
+      if (!sb) return;
+
+      const migrationKey = `bp_migrated_${currentUser.id}`;
+      if (localStorage.getItem(migrationKey)) return; // Already migrated
+
+      const books = getBooks();
+      const userBooks = books.filter(b => !b.id.startsWith('sample_'));
+      if (userBooks.length === 0) {
+        localStorage.setItem(migrationKey, 'true');
+        return;
+      }
+
+      showSyncIndicator('migrating books...');
+
+      for (const book of userBooks) {
+        try {
+          const processedBook = await uploadCoverIfBase64(book);
+          const row = bookToRow(processedBook, currentUser.id);
+          await sb.from('books').upsert(row, { onConflict: 'id' });
+
+          // Update coverUrl in localStorage if it changed
+          if (processedBook.coverUrl !== book.coverUrl) {
+            const allBooks = getBooks();
+            const idx = allBooks.findIndex(b => b.id === book.id);
+            if (idx !== -1) {
+              allBooks[idx].coverUrl = processedBook.coverUrl;
+              saveBooks(allBooks);
+            }
+          }
+        } catch (e) {
+          console.warn('[Migration] Failed to migrate book:', book.title, e.message);
+          queueSyncOperation(book, 'UPSERT');
+        }
+      }
+
+      localStorage.setItem(migrationKey, 'true');
+      showSyncIndicator('migration complete');
+      setTimeout(hideSyncIndicator, 2000);
+    }
+
+    // ==========================================
+    // Sync Indicator UI
+    // ==========================================
+    function showSyncIndicator(text) {
+      const el = document.getElementById('sync-indicator');
+      el.textContent = text;
+      el.classList.add('visible');
+    }
+
+    function hideSyncIndicator() {
+      document.getElementById('sync-indicator').classList.remove('visible');
+    }
 
     // Sample books for demo
     const SAMPLE_BOOKS = [
@@ -1878,6 +2646,8 @@
         localStorage.setItem(BOOKS_KEY, JSON.stringify(SAMPLE_BOOKS));
       }
       renderTimeline();
+      // Initialize auth (non-blocking — app renders immediately from localStorage)
+      initAuth();
     }
 
     // History navigation
@@ -1916,13 +2686,15 @@
 
     function addBook(book) {
       const books = getBooks();
-      book.id = `book_${Date.now()}`;
+      book.id = generateBookId();
       book.dateAdded = new Date().toISOString();
       book.textBoxes = []; // Array of {text, x, y, color}
-      book.yearRead = new Date().getFullYear().toString();
+      book.yearRead = book.yearRead || new Date().getFullYear().toString();
       book.summary = book.summary || '';
       books.unshift(book);
       saveBooks(books);
+      // Async sync to Supabase
+      syncBookToSupabase(book, 'INSERT');
       return book;
     }
 
@@ -1932,6 +2704,10 @@
       if (index !== -1) {
         books[index] = { ...books[index], ...updates };
         saveBooks(books);
+        // Async sync to Supabase (skip sample books)
+        if (!bookId.startsWith('sample_')) {
+          syncBookToSupabase(books[index], 'UPDATE');
+        }
         return books[index];
       }
       return null;
@@ -1940,6 +2716,10 @@
     function deleteBook(bookId) {
       const books = getBooks();
       saveBooks(books.filter(b => b.id !== bookId));
+      // Async sync to Supabase (skip sample books)
+      if (!bookId.startsWith('sample_')) {
+        syncBookToSupabase({ id: bookId }, 'DELETE');
+      }
     }
 
     // View navigation
@@ -2145,6 +2925,7 @@
         const prevBook = books[currentIndex - 1];
         if (prevBook.coverUrl) {
           const img = new Image();
+          img.crossOrigin = 'anonymous';
           img.src = prevBook.coverUrl;
         }
       }
@@ -2154,6 +2935,7 @@
         const nextBook = books[currentIndex + 1];
         if (nextBook.coverUrl) {
           const img = new Image();
+          img.crossOrigin = 'anonymous';
           img.src = nextBook.coverUrl;
         }
       }
@@ -2187,10 +2969,17 @@
       if (currentView !== 'book') return;
       if (e.target.closest('.action-menu') || e.target.closest('.book-view-more-btn')) return;
 
-      // Reset animation flags if they got stuck
+      // Reset animation flags and clean up if they got stuck
       if (cubeIsAnimating || swipeDownIsAnimating) {
         cubeIsAnimating = false;
         swipeDownIsAnimating = false;
+        if (cubeWrapper && cubeWrapper.parentNode) {
+          cubeWrapper.remove();
+          cubeWrapper = null;
+          cubeScene = null;
+        }
+        const container = document.getElementById('book-view-container');
+        container.style.visibility = 'visible';
       }
 
       touchStarted = true;
@@ -2491,6 +3280,7 @@
       const cover = document.createElement('img');
       cover.className = 'book-view-cover';
       cover.decoding = 'async';
+      cover.crossOrigin = 'anonymous';
       cover.onload = () => {
         cover.classList.add('loaded');
         bg.classList.add('loaded');
@@ -2555,15 +3345,21 @@
     function completeCubeTransition() {
       cubeIsAnimating = true;
       const newBook = cubeDirection === 'left' ? cubeNextBook : cubePrevBook;
+      const scene = cubeScene;
+      const wrapper = cubeWrapper;
 
       // Add transition to the scene
-      cubeScene.classList.add('cube-animate');
+      scene.classList.add('cube-animate');
 
       // Complete rotation to 90 degrees
       const finalRotation = cubeDirection === 'left' ? -90 : 90;
-      cubeScene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(${finalRotation}deg)`;
+      scene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(${finalRotation}deg)`;
 
-      setTimeout(() => {
+      // Wait for the CSS transition to actually finish (not a fixed timeout)
+      scene.addEventListener('transitionend', function onEnd(e) {
+        if (e.target !== scene) return;
+        scene.removeEventListener('transitionend', onEnd);
+
         // Update state
         selectedBook = newBook;
         overlayVisible = false;
@@ -2584,46 +3380,59 @@
         // Now show the container with correct content
         container.style.visibility = 'visible';
 
-        // Re-enable transitions after paint
+        // Wait for the browser to paint the new content, then remove cube
         requestAnimationFrame(() => {
-          bookViewCover.style.transition = '';
-          bookViewBg.style.transition = '';
+          requestAnimationFrame(() => {
+            // Clean up cube after the new content is fully painted
+            if (wrapper && wrapper.parentNode) {
+              wrapper.remove();
+            }
+            cubeWrapper = null;
+            cubeScene = null;
+
+            // Re-enable transitions
+            bookViewCover.style.transition = '';
+            bookViewBg.style.transition = '';
+
+            cubeIsAnimating = false;
+          });
         });
-
-        // Clean up cube
-        if (cubeWrapper) {
-          cubeWrapper.remove();
-          cubeWrapper = null;
-          cubeScene = null;
-        }
-
-        cubeIsAnimating = false;
-      }, 400);
+      }, { once: false });
     }
 
     function snapBackCube() {
       cubeIsAnimating = true;
+      const scene = cubeScene;
+      const wrapper = cubeWrapper;
 
       // Add transition to the scene
-      cubeScene.classList.add('cube-animate');
+      scene.classList.add('cube-animate');
 
       // Return to 0 degrees
-      cubeScene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(0deg)`;
+      scene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(0deg)`;
 
-      setTimeout(() => {
+      // Wait for the CSS transition to actually finish
+      scene.addEventListener('transitionend', function onEnd(e) {
+        if (e.target !== scene) return;
+        scene.removeEventListener('transitionend', onEnd);
+
         // Show original container
         const container = document.getElementById('book-view-container');
         container.style.visibility = 'visible';
 
-        // Clean up cube
-        if (cubeWrapper) {
-          cubeWrapper.remove();
-          cubeWrapper = null;
-          cubeScene = null;
-        }
+        // Wait for paint, then remove cube
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (wrapper && wrapper.parentNode) {
+              wrapper.remove();
+            }
+            cubeWrapper = null;
+            cubeScene = null;
 
-        cubeIsAnimating = false;
-      }, 400);
+            cubeIsAnimating = false;
+          });
+        });
+      }, { once: false });
     }
 
     function isLightColorForCube(hex) {
@@ -2733,7 +3542,7 @@
       return `
         <div class="book-card" onclick='showBookView(${JSON.stringify(book).replace(/'/g, "&#39;")})'>
           <div class="card-inner">
-            <img src="${coverUrl}" alt="${book.title}" class="card-cover" onerror="this.src='https://via.placeholder.com/128x192/f0f0f0/999?text=No+Cover'">
+            <img src="${coverUrl}" alt="${book.title}" class="card-cover" crossorigin="anonymous" onerror="this.removeAttribute('crossorigin');this.src='https://via.placeholder.com/128x192/f0f0f0/999?text=No+Cover'">
           </div>
           <div class="card-title">${book.title}</div>
           <div class="card-author">${book.author || 'Unknown Author'}</div>
@@ -3924,7 +4733,14 @@
       overlay.addEventListener('touchmove', eyedropperTouchMove, { passive: false });
       overlay.addEventListener('touchend', eyedropperTouchEnd);
       overlay.addEventListener('touchcancel', eyedropperTouchCancel);
+
+      // Mouse events for desktop browsers without native EyeDropper API
+      overlay.addEventListener('mousedown', eyedropperMouseDown);
+      overlay.addEventListener('mousemove', eyedropperMouseMove);
+      overlay.addEventListener('mouseup', eyedropperMouseUp);
     }
+
+    let eyedropperMouseIsDown = false;
 
     function eyedropperTouchStart(e) {
       e.preventDefault();
@@ -3948,6 +4764,28 @@
     }
 
     function eyedropperTouchCancel() {
+      deactivateTouchEyedropper();
+    }
+
+    function eyedropperMouseDown(e) {
+      e.preventDefault();
+      eyedropperMouseIsDown = true;
+      sampleEyedropperColor(e.clientX, e.clientY);
+      updateEyedropperPreview(e.clientX, e.clientY);
+    }
+
+    function eyedropperMouseMove(e) {
+      if (!eyedropperMouseIsDown) return;
+      e.preventDefault();
+      sampleEyedropperColor(e.clientX, e.clientY);
+      updateEyedropperPreview(e.clientX, e.clientY);
+    }
+
+    function eyedropperMouseUp(e) {
+      eyedropperMouseIsDown = false;
+      if (eyedropperPickedColor && currentTextBoxId !== null) {
+        applyEyedropperColor(eyedropperPickedColor);
+      }
       deactivateTouchEyedropper();
     }
 
@@ -4032,6 +4870,10 @@
       overlay.removeEventListener('touchmove', eyedropperTouchMove);
       overlay.removeEventListener('touchend', eyedropperTouchEnd);
       overlay.removeEventListener('touchcancel', eyedropperTouchCancel);
+      overlay.removeEventListener('mousedown', eyedropperMouseDown);
+      overlay.removeEventListener('mousemove', eyedropperMouseMove);
+      overlay.removeEventListener('mouseup', eyedropperMouseUp);
+      eyedropperMouseIsDown = false;
     }
 
     // Text box dragging (touch)
