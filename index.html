@@ -624,7 +624,6 @@
     .edit-view-container {
       display: flex;
       flex-direction: column;
-      height: 100vh;
       background: #000;
       position: fixed;
       top: 0;
@@ -1152,11 +1151,11 @@
       z-index: 61;
       overflow: hidden;
       opacity: 1;
-      transition: opacity 0.18s ease-out;
     }
 
     .cube-wrapper.cube-fade-out {
       opacity: 0;
+      transition: opacity 0.18s ease-out;
     }
 
     .cube-scene {
@@ -1729,15 +1728,13 @@
     <!-- Home View -->
     <div id="home-view" class="view active">
       <div class="sticky-header">
-        <div class="logo-container">
+        <div class="logo-container" onclick="handleLogoClick(event)">
           <div class="logo-icon"></div>
           <h1><span>between</span><span>pages</span></h1>
         </div>
         <div class="header-divider"></div>
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden;max-width:calc(50% - 12px);">
-          <p class="tagline">thoughts left between the pages</p>
-          <div id="account-indicator" class="account-indicator" onclick="toggleAccountDropdown(event)"></div>
-        </div>
+        <p class="tagline">thoughts left between the pages</p>
+        <div id="account-indicator" class="account-indicator"></div>
         <div id="account-dropdown" class="account-dropdown">
           <div id="account-dropdown-email" class="account-dropdown-email"></div>
           <div class="account-dropdown-item" onclick="signOut()">sign out</div>
@@ -2040,28 +2037,21 @@
 
     // Account indicator helpers
     function showAccountIndicator() {
-      const el = document.getElementById('account-indicator');
       const emailEl = document.getElementById('account-dropdown-email');
       if (!currentUser) return;
 
-      const meta = currentUser.user_metadata || {};
-      const avatarUrl = meta.avatar_url || meta.picture;
-      const name = meta.full_name || meta.name || currentUser.email || '';
-
-      if (avatarUrl) {
-        el.innerHTML = `<img src="${avatarUrl}" alt="${name}" referrerpolicy="no-referrer">`;
-      } else {
-        el.textContent = name.charAt(0).toUpperCase();
-      }
-      el.classList.add('visible');
       emailEl.textContent = currentUser.email || '';
+      document.querySelector('.logo-container').style.cursor = 'pointer';
     }
 
     function hideAccountIndicator() {
-      const el = document.getElementById('account-indicator');
-      el.classList.remove('visible');
-      el.innerHTML = '';
+      document.querySelector('.logo-container').style.cursor = '';
       hideAccountDropdown();
+    }
+
+    function handleLogoClick(e) {
+      if (!currentUser) return;
+      toggleAccountDropdown(e);
     }
 
     function toggleAccountDropdown(e) {
@@ -2628,7 +2618,8 @@
     // Color picker state
     let colorPickerMode = null; // 'bg' or 'text'
     let extractedColors = [];
-    let lockedViewportHeight = 0;
+    // lockedViewportHeight removed — was used to lock container height during iOS
+    // keyboard open, but position:fixed + top:0/bottom:0 handles this correctly.
     let eyedropperActive = false;
     let eyedropperMode = 'text'; // 'bg' or 'text' - default to text
     let eyedropperCanvas = null;
@@ -2799,10 +2790,10 @@
       currentView = 'edit';
       selectedBook = book;
 
-      // Lock container height so keyboard can't push cover up
-      lockedViewportHeight = window.innerHeight;
+      // Reset any inline styles from previous edit session
       const container = document.getElementById('edit-view-container');
-      container.style.height = lockedViewportHeight + 'px';
+      container.style.height = '';
+      container.style.top = '';
 
       renderEditView();
       if (pushState) history.pushState({ view: 'edit', bookId: book.id }, '', '');
@@ -3373,55 +3364,39 @@
       const finalRotation = cubeDirection === 'left' ? -90 : 90;
       scene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(${finalRotation}deg)`;
 
-      // Wait for the CSS transition to actually finish (not a fixed timeout)
+      // Wait for the CSS rotation to finish
       scene.addEventListener('transitionend', function onEnd(e) {
         if (e.target !== scene) return;
         scene.removeEventListener('transitionend', onEnd);
 
-        // Update state
+        // Update state to the new book
         selectedBook = newBook;
         overlayVisible = false;
 
-        const container = document.getElementById('book-view-container');
-        const bookViewCover = document.getElementById('book-view-cover');
-        const bookViewBg = document.getElementById('book-view-bg');
+        // Render the new book underneath the cube.
+        // Do NOT use skipFade — cover and bg start at opacity: 0
+        // and fade in via their CSS transitions (0.3s / 0.4s).
+        // The cube (z-index: 61) still covers everything at this point.
+        renderBookView(false, false);
 
-        // Render new book content (container behind cube, invisible to user)
-        renderBookView(false, true);
+        // Next frame: start the cube fade-out. This runs concurrently
+        // with the cover/bg fade-in, producing a smooth cross-fade.
+        requestAnimationFrame(() => {
+          wrapper.classList.add('cube-fade-out');
 
-        // Clean up: fade out cube, then remove it
-        function cleanup() {
-          requestAnimationFrame(() => {
-            // Fade out the cube to reveal the rendered book view underneath
-            wrapper.classList.add('cube-fade-out');
+          wrapper.addEventListener('transitionend', function onFade(e) {
+            if (e.target !== wrapper) return;
+            wrapper.removeEventListener('transitionend', onFade);
 
-            wrapper.addEventListener('transitionend', function onFade(e) {
-              if (e.target !== wrapper) return;
-              wrapper.removeEventListener('transitionend', onFade);
-
-              if (wrapper.parentNode) {
-                wrapper.remove();
-              }
-              cubeWrapper = null;
-              cubeScene = null;
-
-              // Re-enable transitions
-              bookViewCover.style.transition = '';
-              bookViewBg.style.transition = '';
-
-              cubeIsAnimating = false;
-            }, { once: false });
-          });
-        }
-
-        // Use decode() to guarantee cover image is fully decoded and ready to paint
-        // before fading out the cube
-        if (bookViewCover.decode) {
-          bookViewCover.decode().then(cleanup).catch(cleanup);
-        } else {
-          // Fallback for older browsers
-          requestAnimationFrame(() => { requestAnimationFrame(cleanup); });
-        }
+            // Cube is now fully transparent — safe to remove
+            if (wrapper.parentNode) {
+              wrapper.remove();
+            }
+            cubeWrapper = null;
+            cubeScene = null;
+            cubeIsAnimating = false;
+          }, { once: false });
+        });
       }, { once: false });
     }
 
@@ -3753,20 +3728,18 @@
       // Click on text box display to enter edit mode
       textBox.addEventListener('click', handleEditTextBoxClick);
 
-      // Prevent iOS keyboard from pushing the cover up
-      // When iOS focuses an input, it scrolls the page to bring it into view — counteract that
+      // iOS keyboard fix: Do NOT sync container position to visualViewport.
+      // On iOS Safari, the layout viewport (used by position:fixed) does not
+      // change when the keyboard opens — only the visual viewport scrolls and
+      // shrinks. Setting container.style.top to visualViewport.offsetTop would
+      // push the fixed container down, causing the cover image to jump.
+      // The correct approach: leave the container at top:0/bottom:0 and only
+      // neutralise any residual window scroll iOS may trigger.
       if (window.visualViewport) {
-        window.visualViewport.addEventListener('scroll', () => {
-          if (currentView === 'edit') {
-            const container = document.getElementById('edit-view-container');
-            container.style.top = window.visualViewport.offsetTop + 'px';
-          }
-        });
         window.visualViewport.addEventListener('resize', () => {
           if (currentView === 'edit') {
-            // Keep container at locked full height, don't let keyboard shrink it
-            const container = document.getElementById('edit-view-container');
-            container.style.height = lockedViewportHeight + 'px';
+            // GUARD: only scroll reset — never set container position or size here.
+            window.scrollTo(0, 0);
           }
         });
       }
