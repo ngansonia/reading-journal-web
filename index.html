@@ -1159,6 +1159,7 @@
       z-index: 61;
       overflow: hidden;
       opacity: 1;
+      background: #000;
     }
 
     .cube-wrapper.cube-fade-out {
@@ -1256,7 +1257,7 @@
       background-position: center;
       filter: blur(20px) brightness(0.4);
       z-index: 1;
-      will-change: transform;
+      will-change: transform, opacity;
       opacity: 0;
       transition: opacity 0.4s ease;
     }
@@ -1286,6 +1287,7 @@
       object-fit: contain;
       opacity: 0;
       transition: opacity 0.3s ease;
+      will-change: opacity, transform;
     }
 
     .book-view-cover.loaded {
@@ -3384,18 +3386,22 @@
       const scene = cubeScene;
       const wrapper = cubeWrapper;
 
-      // --- Start decoding the next cover NOW, in parallel with the rotation ---
-      // If preloadAdjacentBooks() already decoded it, this resolves instantly.
-      // Otherwise the 400ms rotation window gives the decode time to finish.
-      const coverUrl = newBook.coverUrl || 'https://via.placeholder.com/300x450/f0f0f0/999?text=No+Cover';
-      const preloaded = preloadedCovers[newBook.id];
-      const decodeImg = (preloaded && preloaded.src === coverUrl) ? preloaded : new Image();
-      if (!decodeImg.src) {
-        decodeImg.crossOrigin = 'anonymous';
-        decodeImg.src = coverUrl;
-      }
-      const coverDecoded = decodeImg.decode
-        ? decodeImg.decode().catch(() => {})
+      // --- Swap book view content NOW, behind the opaque cube ---
+      // The cube (z-index 61, background: #000) fully covers the viewport,
+      // so this content swap is invisible. Starting now gives the browser
+      // the entire 400ms rotation window to decode + paint the images in
+      // the actual DOM elements (not just a preloaded Image object).
+      selectedBook = newBook;
+      overlayVisible = false;
+      renderBookView(false, true);  // skipFade: sets src, no transitions
+
+      // --- Decode the ACTUAL DOM <img>, not just a cached Image object ---
+      // img.decode() resolves when the bitmap is ready for THIS element.
+      // For cached/preloaded images this is near-instant; for uncached
+      // images the 400ms rotation window gives time to finish.
+      const bookViewCover = document.getElementById('book-view-cover');
+      const domCoverReady = bookViewCover.decode
+        ? bookViewCover.decode().catch(() => {})
         : Promise.resolve();
 
       // --- Animate cube rotation to 90 degrees ---
@@ -3412,34 +3418,31 @@
         }, { once: false });
       });
 
-      // --- Wait for BOTH rotation AND decode before revealing the new cover ---
-      // The rotation takes 400ms; for cached images the decode is <50ms,
-      // so Promise.all resolves as soon as the rotation ends. For uncached
-      // images the decode may take slightly longer — the cube stays at 90°
-      // for that brief moment (imperceptible vs a blank-frame flash).
-      Promise.all([rotationDone, coverDecoded]).then(() => {
-        // Cube is at 90° and fully covers the view — safe to swap content
-        selectedBook = newBook;
-        overlayVisible = false;
-        renderBookView(false, true);
-
-        // Next frame: start the cube fade-out, revealing the
-        // already-painted cover underneath for a seamless handoff.
+      // --- Wait for BOTH rotation AND actual DOM decode ---
+      // The rotation takes 400ms; for preloaded images the DOM decode
+      // resolves in <5ms. Promise.all ensures we never fade out the cube
+      // before the cover is ready to be shown.
+      Promise.all([rotationDone, domCoverReady]).then(() => {
+        // Double rAF: first frame submits the decoded bitmap to the
+        // compositor, second frame guarantees it has been painted to
+        // screen. Only then do we fade out the cube.
         requestAnimationFrame(() => {
-          wrapper.classList.add('cube-fade-out');
+          requestAnimationFrame(() => {
+            wrapper.classList.add('cube-fade-out');
 
-          wrapper.addEventListener('transitionend', function onFade(e) {
-            if (e.target !== wrapper) return;
-            wrapper.removeEventListener('transitionend', onFade);
+            wrapper.addEventListener('transitionend', function onFade(e) {
+              if (e.target !== wrapper) return;
+              wrapper.removeEventListener('transitionend', onFade);
 
-            // Cube is now fully transparent — safe to remove
-            if (wrapper.parentNode) {
-              wrapper.remove();
-            }
-            cubeWrapper = null;
-            cubeScene = null;
-            cubeIsAnimating = false;
-          }, { once: false });
+              // Cube is now fully transparent — safe to remove
+              if (wrapper.parentNode) {
+                wrapper.remove();
+              }
+              cubeWrapper = null;
+              cubeScene = null;
+              cubeIsAnimating = false;
+            }, { once: false });
+          });
         });
       });
     }
