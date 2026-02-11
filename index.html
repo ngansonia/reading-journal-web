@@ -3380,36 +3380,64 @@
       cubeScene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(${rotation}deg)`;
     }
 
+    // --- CUBE TRANSITION: CRITICAL TIMING SEQUENCE ---
+    //
+    // The order of operations here is load-bearing. Three things must
+    // happen in this exact sequence to eliminate the ~1s cover delay:
+    //
+    //   1. renderBookView(false, true) BEFORE rotation starts.
+    //      This sets the actual DOM <img>.src and background-image behind
+    //      the opaque cube, giving the browser the full 400ms rotation
+    //      window to fetch/decode/paint the pixels. The cube (z-index 61,
+    //      background: #000) fully covers the viewport so the swap is
+    //      invisible.
+    //      ⚠ REGRESSION: Moving renderBookView AFTER rotation reintroduces
+    //      the delay — the browser has zero time to paint before the cube
+    //      fades, causing a blank flash.
+    //
+    //   2. bookViewCover.decode() on the ACTUAL DOM <img> element.
+    //      preloadAdjacentBooks() decodes an off-screen Image object which
+    //      warms the HTTP cache, but does NOT guarantee the DOM element's
+    //      bitmap is ready. decode() on the real element returns a Promise
+    //      that resolves only when the bitmap is compositor-ready for THIS
+    //      element.
+    //      ⚠ REGRESSION: Decoding only a detached Image (not the DOM img)
+    //      leaves a race where the DOM element hasn't painted yet.
+    //
+    //   3. Double requestAnimationFrame after Promise.all resolves.
+    //      First rAF: browser processes the decoded bitmap and submits it
+    //      to the compositor. Second rAF: confirms the compositor has
+    //      painted the frame. Only then does the cube-fade-out class get
+    //      added (0.18s opacity transition) to reveal the fully-painted
+    //      cover underneath.
+    //      ⚠ REGRESSION: A single rAF is not enough — the browser may not
+    //      have composited the bitmap by then, causing a flash of black.
+    //
     function completeCubeTransition() {
       cubeIsAnimating = true;
       const newBook = cubeDirection === 'left' ? cubeNextBook : cubePrevBook;
       const scene = cubeScene;
       const wrapper = cubeWrapper;
 
-      // --- Swap book view content NOW, behind the opaque cube ---
-      // The cube (z-index 61, background: #000) fully covers the viewport,
-      // so this content swap is invisible. Starting now gives the browser
-      // the entire 400ms rotation window to decode + paint the images in
-      // the actual DOM elements (not just a preloaded Image object).
+      // STEP 1: Swap book view content NOW, behind the opaque cube.
+      // See timing notes above — this MUST happen before rotation starts.
       selectedBook = newBook;
       overlayVisible = false;
       renderBookView(false, true);  // skipFade: sets src, no transitions
 
-      // --- Decode the ACTUAL DOM <img>, not just a cached Image object ---
-      // img.decode() resolves when the bitmap is ready for THIS element.
-      // For cached/preloaded images this is near-instant; for uncached
-      // images the 400ms rotation window gives time to finish.
+      // STEP 2: Decode the ACTUAL DOM <img>, not a detached Image object.
+      // See timing notes above — only this element's decode() guarantees
+      // the bitmap is compositor-ready for the real on-screen element.
       const bookViewCover = document.getElementById('book-view-cover');
       const domCoverReady = bookViewCover.decode
         ? bookViewCover.decode().catch(() => {})
         : Promise.resolve();
 
-      // --- Animate cube rotation to 90 degrees ---
+      // Animate cube rotation to 90 degrees (runs in parallel with decode)
       scene.classList.add('cube-animate');
       const finalRotation = cubeDirection === 'left' ? -90 : 90;
       scene.style.transform = `translateZ(-${cubeHalfWidth}px) rotateY(${finalRotation}deg)`;
 
-      // Wait for rotation CSS transition to finish
       const rotationDone = new Promise(resolve => {
         scene.addEventListener('transitionend', function onEnd(e) {
           if (e.target !== scene) return;
@@ -3418,14 +3446,12 @@
         }, { once: false });
       });
 
-      // --- Wait for BOTH rotation AND actual DOM decode ---
-      // The rotation takes 400ms; for preloaded images the DOM decode
-      // resolves in <5ms. Promise.all ensures we never fade out the cube
-      // before the cover is ready to be shown.
+      // Wait for BOTH rotation (400ms) AND actual DOM decode.
+      // For preloaded images the decode resolves in <5ms; Promise.all
+      // ensures we never fade out the cube before the cover is painted.
       Promise.all([rotationDone, domCoverReady]).then(() => {
-        // Double rAF: first frame submits the decoded bitmap to the
-        // compositor, second frame guarantees it has been painted to
-        // screen. Only then do we fade out the cube.
+        // STEP 3: Double rAF — guarantees compositor paint before fade.
+        // See timing notes above — do NOT reduce to a single rAF.
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             wrapper.classList.add('cube-fade-out');
@@ -3434,7 +3460,6 @@
               if (e.target !== wrapper) return;
               wrapper.removeEventListener('transitionend', onFade);
 
-              // Cube is now fully transparent — safe to remove
               if (wrapper.parentNode) {
                 wrapper.remove();
               }
